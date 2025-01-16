@@ -10,6 +10,7 @@ public class Drivetrain {
     private final DcMotor frontLeft;
     private final DcMotor frontRight;
     private boolean fieldCentric = false;
+    private boolean debounce = false;
     public Drivetrain(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight) {
         this.backLeft = backLeft;
         this.backRight = backRight;
@@ -33,13 +34,15 @@ public class Drivetrain {
     }
 
     public double[] getTeleopDriveInputs(Gamepad gamepad1, Gamepad gamepad2, double heading) {
-        double inputY = -gamepad1.left_stick_y;
+        double inputY = gamepad1.left_stick_y;
         double inputX = gamepad1.left_stick_x;
         double inputRot = gamepad1.right_stick_x;
 
         //check buttons
-        if(gamepad1.x){
+        if(gamepad1.x && !debounce){
             fieldCentric = !fieldCentric;
+        } else if (!gamepad1.x && debounce) {
+            debounce = false;
         }
 
         if(fieldCentric){
@@ -47,7 +50,7 @@ public class Drivetrain {
             double rotX = inputX*Math.cos(-heading) - inputY*Math.sin(-heading);
             double rotY = inputX*Math.sin(-heading) - inputY*Math.cos(-heading);
 
-            inputX = rotX;
+            inputX = rotX * 1.1;
             inputY = rotY;
         }
 
