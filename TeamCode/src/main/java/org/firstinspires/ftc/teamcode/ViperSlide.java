@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class ViperSlide {
-    DcMotor slideExt;
-    DcMotor slideRot;
+    public DcMotor slideExt;
+    public DcMotor slideRot;
     Robot robot;
     boolean debounce = false;
     boolean gripperPosition = false;

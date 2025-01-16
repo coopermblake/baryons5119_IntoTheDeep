@@ -14,23 +14,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 public class Robot {
-    DcMotor backLeft;
-    DcMotor backRight;
-    DcMotor frontLeft;
-    DcMotor frontRight;
+    public DcMotor backLeft;
+    public DcMotor backRight;
+    public DcMotor frontLeft;
+    public DcMotor frontRight;
 
-    DcMotor slideExt;
-    DcMotor slideRot;
+    public DcMotor slideExt;
+    public DcMotor slideRot;
 
-    Servo gripper;
-    IMU imu;
+    public Servo gripper;
+    public IMU imu;
 
-    Gamepad gamepad1;
-    Gamepad gamepad2;
+    public Gamepad gamepad1;
+    public Gamepad gamepad2;
 
-    Drivetrain drivetrain;
-    ViperSlide viperSlide;
-    AutoDrive autoDrive;
+    public Drivetrain drivetrain;
+    public ViperSlide viperSlide;
+    public AutoDrive autoDrive;
 
     public Robot(HardwareMap HardwareMap, Gamepad Gamepad1, Gamepad Gamepad2) {
         gamepad1 = Gamepad1;
