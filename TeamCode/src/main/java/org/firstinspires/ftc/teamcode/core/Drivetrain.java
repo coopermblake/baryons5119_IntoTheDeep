@@ -51,7 +51,7 @@ public class Drivetrain {
             double rotY = inputX*Math.sin(-heading) - inputY*Math.cos(-heading);
 
             inputX = rotX * 1.1;
-            inputY = rotY;
+            inputY = -rotY;
         }
 
         // Divisor is used to scale the other inputs if an input is too large or slow down the robot
