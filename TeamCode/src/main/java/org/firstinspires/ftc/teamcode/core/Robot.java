@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.core;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot.LogoFacingDirection;
@@ -12,25 +12,26 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.lib.AutoDrive;
 
 public class Robot {
-    DcMotor backLeft;
-    DcMotor backRight;
-    DcMotor frontLeft;
-    DcMotor frontRight;
+    public DcMotor backLeft;
+    public DcMotor backRight;
+    public DcMotor frontLeft;
+    public DcMotor frontRight;
 
-    DcMotor slideExt;
-    DcMotor slideRot;
+    public DcMotor slideExt;
+    public DcMotor slideRot;
 
-    Servo gripper;
-    IMU imu;
+    public Servo gripper;
+    public IMU imu;
 
-    Gamepad gamepad1;
-    Gamepad gamepad2;
+    public Gamepad gamepad1;
+    public Gamepad gamepad2;
 
-    Drivetrain drivetrain;
-    ViperSlide viperSlide;
-    AutoDrive autoDrive;
+    public Drivetrain drivetrain;
+    public ViperSlide viperSlide;
+    public AutoDrive autoDrive;
 
     public Robot(HardwareMap HardwareMap, Gamepad Gamepad1, Gamepad Gamepad2) {
         gamepad1 = Gamepad1;
@@ -50,7 +51,7 @@ public class Robot {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP, UsbFacingDirection.RIGHT)));
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight);
-        viperSlide = new ViperSlide(this);
+        viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
         autoDrive = new AutoDrive(backLeft, backRight, frontLeft, frontRight, imu);
     }
 

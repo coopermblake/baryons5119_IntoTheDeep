@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.core.Robot;
 
 @Autonomous
 public class AUTO_ForwardAndBackward extends OpMode {
@@ -19,39 +20,39 @@ public class AUTO_ForwardAndBackward extends OpMode {
     public void start(){
         //1
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //2
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //3
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //4
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //5
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //6
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
     }
 
     public void loop() {
@@ -72,7 +73,7 @@ public class AUTO_ForwardAndBackward extends OpMode {
         robot.viperSlide.slideRot.setPower(0);
     }
 
-    public void slep(int ms){
+    public void sleep(int ms){
         android.os.SystemClock.sleep(ms);
     }
 

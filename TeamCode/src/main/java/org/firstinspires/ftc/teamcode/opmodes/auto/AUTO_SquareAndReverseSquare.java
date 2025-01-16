@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.core.Robot;
 
 @Autonomous
 public class AUTO_SquareAndReverseSquare extends OpMode {
@@ -18,25 +19,25 @@ public class AUTO_SquareAndReverseSquare extends OpMode {
 
     public void start(){
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 90.0);
         robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, 90.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 180.0);
         robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, 180.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, -90.0);
         robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, -90.0);
-        slep(500);
+        sleep(500);
 
 
         //start doing all in reverse
@@ -44,25 +45,25 @@ public class AUTO_SquareAndReverseSquare extends OpMode {
         robot.autoDrive.holdHeading(0.2, 0.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 90.0);
         robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, 90.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 180.0);
         robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, 180.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, -90.0);
         robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, -90.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 0.0);
         robot.autoDrive.holdHeading(0.2, 0.0, 0.5);
@@ -87,7 +88,7 @@ public class AUTO_SquareAndReverseSquare extends OpMode {
         robot.viperSlide.slideRot.setPower(0);
     }
 
-    public void slep(int ms){
+    public void sleep(int ms){
         android.os.SystemClock.sleep(ms);
     }
 

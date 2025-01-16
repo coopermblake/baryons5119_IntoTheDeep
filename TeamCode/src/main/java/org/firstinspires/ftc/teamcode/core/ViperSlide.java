@@ -1,28 +1,33 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class ViperSlide {
-    DcMotor slideExt;
-    DcMotor slideRot;
-    Robot robot;
-    boolean debounce = false;
-    boolean gripperPosition = false;
-    boolean driverControl = false;
-    int rotMin;
-    int rotMax;
-    int extMin;
-    int extMaxLow;
-    int extMaxHigh;
-    double rotSensitivity = 1; // equivalent to 1000 ticks/s
-    double extSensitivity = 1;
-    long lastCycle;
+    public final DcMotor slideExt;
+    public final DcMotor slideRot;
+    private final Gamepad gamepad1;
+    private final Gamepad gamepad2;
+    private final Servo gripper;
+    private boolean debounce = false;
+    private boolean gripperPosition = false;
+    public boolean driverControl = false;
+    public int rotMin;
+    public int rotMax;
+    public int extMin;
+    public int extMaxLow;
+    public int extMaxHigh;
+    private final double rotSensitivity = 1; // equivalent to 1000 ticks/s
+    private final double extSensitivity = 1;
+    private long lastCycle;
 
-    public ViperSlide(Robot robot) {
-        this.robot = robot;
-        slideExt = robot.slideExt;
-        slideRot = robot.slideRot;
+    public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
+        this.slideExt = slideExt;
+        this.slideRot = slideRot;
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+        this.gripper = gripper;
         slideExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideRot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -55,12 +60,12 @@ public class ViperSlide {
 
     private void handleGripper() {
         // we use debounce to make pressing the trigger only toggle the gripper once per press
-        if (robot.gamepad2.right_trigger > 0.05 || robot.gamepad1.left_trigger > 0.05) {
+        if (gamepad2.right_trigger > 0.05 || gamepad1.left_trigger > 0.05) {
             if (!debounce) {
                 if (gripperPosition) {
-                    robot.gripper.setPosition(0.81);
+                    gripper.setPosition(0.81);
                 } else {
-                    robot.gripper.setPosition(0.47);
+                    gripper.setPosition(0.47);
                 }
                 gripperPosition = !gripperPosition;
                 debounce = true;
