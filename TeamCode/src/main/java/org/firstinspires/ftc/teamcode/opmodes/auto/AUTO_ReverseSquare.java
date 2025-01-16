@@ -1,9 +1,17 @@
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ReverseSquare.java
 package org.firstinspires.ftc.teamcode.opmodes.auto;
+========
+package org.firstinspires.ftc.teamcode.autoModes;
+>>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ReverseSquare.java
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ReverseSquare.java
 import org.firstinspires.ftc.teamcode.core.Robot;
+========
+import org.firstinspires.ftc.teamcode.Robot;
+>>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ReverseSquare.java
 
 @Autonomous
 public class AUTO_ReverseSquare extends OpMode {
@@ -20,25 +28,25 @@ public class AUTO_ReverseSquare extends OpMode {
 
     public void start(){
         robot.autoDrive.driveStraight(-0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 90.0);
         robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, 90.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 180.0);
         robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, 180.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, -90.0);
         robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
 
         robot.autoDrive.driveStraight(-0.4, 24.0, -90.0);
-        slep(500);
+        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 0.0);
         robot.autoDrive.holdHeading(0.2, 0.0, 0.5);
@@ -62,7 +70,7 @@ public class AUTO_ReverseSquare extends OpMode {
         robot.viperSlide.slideRot.setPower(0);
     }
 
-    public void slep(int ms){
+    public void sleep(int ms){
         android.os.SystemClock.sleep(ms);
     }
 

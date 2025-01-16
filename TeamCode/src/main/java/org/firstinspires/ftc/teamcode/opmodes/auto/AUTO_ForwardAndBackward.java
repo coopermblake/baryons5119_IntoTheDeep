@@ -1,9 +1,17 @@
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ForwardAndBackward.java
 package org.firstinspires.ftc.teamcode.opmodes.auto;
+========
+package org.firstinspires.ftc.teamcode.autoModes;
+>>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ForwardAndBackward.java
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ForwardAndBackward.java
 import org.firstinspires.ftc.teamcode.core.Robot;
+========
+import org.firstinspires.ftc.teamcode.Robot;
+>>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ForwardAndBackward.java
 
 @Autonomous
 public class AUTO_ForwardAndBackward extends OpMode {
@@ -21,39 +29,39 @@ public class AUTO_ForwardAndBackward extends OpMode {
     public void start(){
         //1
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //2
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //3
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //4
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //5
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
 
         //6
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        slep(500);
+        sleep(500);
         robot.autoDrive.driveStraight(-0.4, 24.0,0.0);
-        slep(500);
+        sleep(500);
     }
 
     public void loop() {
@@ -74,7 +82,7 @@ public class AUTO_ForwardAndBackward extends OpMode {
         robot.viperSlide.slideRot.setPower(0);
     }
 
-    public void slep(int ms){
+    public void sleep(int ms){
         android.os.SystemClock.sleep(ms);
     }
 
