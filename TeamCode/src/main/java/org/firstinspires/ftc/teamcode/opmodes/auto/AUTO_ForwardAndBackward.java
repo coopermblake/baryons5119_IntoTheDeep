@@ -1,17 +1,8 @@
-<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ForwardAndBackward.java
 package org.firstinspires.ftc.teamcode.opmodes.auto;
-========
-package org.firstinspires.ftc.teamcode.autoModes;
->>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ForwardAndBackward.java
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmodes/auto/AUTO_ForwardAndBackward.java
 import org.firstinspires.ftc.teamcode.core.Robot;
-========
-import org.firstinspires.ftc.teamcode.Robot;
->>>>>>>> origin/packageify-project:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autoModes/AUTO_ForwardAndBackward.java
 
 @Autonomous
 public class AUTO_ForwardAndBackward extends OpMode {
