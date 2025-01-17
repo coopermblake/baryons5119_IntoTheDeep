@@ -13,6 +13,7 @@ public class ViperSlide {
     private boolean debounce = false;
     private boolean gripperPosition = false;
     public boolean driverControl = false;
+    public boolean macroing = false;//public for now, telemetry purposes
     public int rotMin;
     public int rotMax;
     public int extMin;
@@ -36,12 +37,10 @@ public class ViperSlide {
     }
 
     public void moveSlide(double inputRot, double inputExt) {
-       if(slideExt.getCurrentPosition()> extMaxLow && inputExt > 0 && slideRot.getCurrentPosition() - rotMin > -2500){
-           inputExt = 0;
-       }
-
-       else if (slideExt.getCurrentPosition()>extMaxHigh && inputExt > 0){
-           inputExt = 0;
+        if (slideExt.getCurrentPosition() > extMaxLow && inputExt > 0 && slideRot.getCurrentPosition() - rotMin > -2500) {
+            inputExt = 0;
+        } else if (slideExt.getCurrentPosition() > extMaxHigh && inputExt > 0) {
+            inputExt = 0;
         }
 
         slideRot.setPower(-inputRot);
@@ -49,7 +48,7 @@ public class ViperSlide {
 
     }
 
-    public void resetEncoder(){
+    public void resetEncoder() {
         rotMin = slideRot.getCurrentPosition();
         rotMax = rotMin + 4000;
         extMin = slideExt.getCurrentPosition();
@@ -78,34 +77,47 @@ public class ViperSlide {
     public void teleopSlideMovement(Gamepad gamepad1, Gamepad gamepad2) {
         double extPower;
         double rotPower;
-        if (driverControl) {
+
+        handleMacros(gamepad2);
+        if (driverControl && !macroing) {
             handleGripper();
 
-            if(gamepad1.y){
+            if (gamepad1.y) {
                 resetEncoder();
             }
 
             //moveSlide(-gamepad2.right_stick_y, -gamepad2.left_stick_y);
-            rotPower=-gamepad2.right_stick_y;
+            rotPower = -gamepad2.right_stick_y;
             extPower = -gamepad2.left_stick_y;
             if (Math.abs(-gamepad2.right_stick_y) < 0.05) {
                 //slideRot.setPower(0);
-                rotPower=0;
-            } else {
-                //slideRot.setPower(-gamepad2.right_stick_y);
+                rotPower = 0;
             }
             if (Math.abs(-gamepad2.left_stick_y) < 0.05) {
                 //slideExt.setPower(0);
                 extPower = 0;
-            } else {
-                //slideExt.setPower(-gamepad2.left_stick_y);
             }
             moveSlide(rotPower, extPower);
-            handleMacros(gamepad2);
+
         }
     }
 
-    private void handleMacros(Gamepad gamepad2) {
+    private void handleMacros (Gamepad gamepad2){
+        if (gamepad2.dpad_up) {
+            macroing = true;
+            slideRot.setTargetPosition(rotMin - 2900);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(0.2);
+        } else if (gamepad2.dpad_down) {
+            macroing = true;
+            slideRot.setTargetPosition(rotMin);
+            slideRot.setPower(0.1);
+        }
 
+        if (gamepad2.b) {
+            macroing = false;
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 }
