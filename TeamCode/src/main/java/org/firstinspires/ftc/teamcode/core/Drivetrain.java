@@ -34,7 +34,7 @@ public class Drivetrain {
     }
 
     public double[] getTeleopDriveInputs(Gamepad gamepad1, Gamepad gamepad2, double heading) {
-        double inputY = gamepad1.left_stick_y;
+        double inputY = -gamepad1.left_stick_y;
         double inputX = gamepad1.left_stick_x;
         double inputRot = gamepad1.right_stick_x;
 
@@ -48,7 +48,7 @@ public class Drivetrain {
         if(fieldCentric){
             //rotate inputs to align with robot
             double rotX = inputX*Math.cos(-heading) - inputY*Math.sin(-heading);
-            double rotY = inputX*Math.sin(-heading) - inputY*Math.cos(-heading);
+            double rotY = inputX*Math.sin(-heading) + inputY*Math.cos(-heading);
 
             inputX = rotX * 1.1;
             inputY = rotY;
