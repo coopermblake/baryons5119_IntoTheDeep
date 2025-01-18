@@ -14,7 +14,7 @@ public class ViperSlide {
     private boolean gripperPosition = false;
     public boolean driverControl = false;
     public int macroing = 0;//public for now, telemetry purposes
-    //0 for off, 1 for going up, -1 for going down
+    //0 for off, 2 for going up, -1 for going down, 1 for going horizontal
     public int rotMin;
     public int rotMax;
     public int extMin;
@@ -104,8 +104,8 @@ public class ViperSlide {
     }
 
     private void handleMacros (Gamepad gamepad2){
-        if (gamepad2.dpad_up || macroing ==1) {
-            macroing = 1;
+        if (gamepad2.dpad_up || macroing ==2) {
+            macroing = 2;
             slideRot.setTargetPosition(rotMin - 2900);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
@@ -115,15 +115,19 @@ public class ViperSlide {
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
         }
-        //TODO: macro for rotation to -1302 for grabbing specimen
-
-        if(macroing==1&&Math.abs(slideRot.getCurrentPosition()-(rotMin-2900))<=10){
+        else if(gamepad1.dpad_left||gamepad1.dpad_right||macroing==1){
+            macroing = 1;
+            slideRot.setTargetPosition(rotMin-1302);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+        }
+        //TODO: make macroing an enum so it is easier to read macro code
+        if(Math.abs(slideRot.getCurrentPosition()-slideRot.getTargetPosition())<=10){
             macroing = 0;
+            slideRot.setPower(0);
+            slideExt.setPower(0);
         }
 
-        if(macroing==-1&&Math.abs(slideRot.getCurrentPosition())<=10){
-            macroing = 0;
-        }
 
         if (gamepad2.b) {
             macroing = 0;
