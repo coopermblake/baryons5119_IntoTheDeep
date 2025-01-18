@@ -91,7 +91,7 @@ import java.util.Locale;
 
 public class AutoDrive {
 
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
     private final DcMotor backLeft;
     private final DcMotor backRight;
     private final DcMotor frontLeft;
@@ -227,7 +227,7 @@ public class AutoDrive {
     }
 
     public void driveStrafe(double maxStrafeSpeed, double distance, double heading){
-        int moveCounts = (int)(distance * COUNTS_PER_INCH);
+        int moveCounts = (int)(distance * STRAFE_COUNTS_PER_INCH);
         frontLeftTarget = frontLeft.getCurrentPosition() + moveCounts;
         frontRightTarget = frontRight.getCurrentPosition() - moveCounts;
         backLeftTarget = backLeft.getCurrentPosition() - moveCounts;
@@ -426,7 +426,6 @@ public class AutoDrive {
      */
     //Todo: make this argument simpler with enum
     public void sendTelemetry(boolean straight, boolean strafe) {
-        String motion, targetPos, actualPos, heading, error, wheelSpeeds;
 
         telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeading());
         telemetry.addData("Error : Steer Pwr:", "%5.1f : %5.1f", headingError, turnSpeed);

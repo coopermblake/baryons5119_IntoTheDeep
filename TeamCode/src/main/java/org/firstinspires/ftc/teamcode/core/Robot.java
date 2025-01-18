@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.lib.AutoDrive;
@@ -52,7 +53,7 @@ public class Robot {
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
-        autoDrive = new AutoDrive(backLeft, backRight, frontLeft, frontRight, imu);
+
     }
 
     public double getYawDegrees() {
@@ -63,5 +64,9 @@ public class Robot {
     public double getYawRadians(){
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.RADIANS);
+    }
+
+    public void initAutoDrive(Telemetry telemetry){
+        autoDrive = new AutoDrive(backLeft, backRight, frontLeft, frontRight, imu, telemetry);
     }
 }
