@@ -13,7 +13,8 @@ public class ViperSlide {
     private boolean debounce = false;
     private boolean gripperPosition = false;
     public boolean driverControl = false;
-    public boolean macroing = false;//public for now, telemetry purposes
+    public int macroing = 0;//public for now, telemetry purposes
+    //0 for off, 1 for going up, -1 for going down
     public int rotMin;
     public int rotMax;
     public int extMin;
@@ -50,7 +51,7 @@ public class ViperSlide {
 
     public void resetEncoder() {
         rotMin = slideRot.getCurrentPosition();
-        rotMax = rotMin + 4000;
+        rotMax = rotMin - 4000;
         extMin = slideExt.getCurrentPosition();
         extMaxLow = extMin + 3300;
         extMaxHigh = extMin + 4000;
@@ -79,7 +80,7 @@ public class ViperSlide {
         double rotPower;
 
         handleMacros(gamepad2);
-        if (driverControl && !macroing) {
+        if (driverControl && macroing==0) {
             handleGripper();
 
             if (gamepad1.y) {
@@ -103,19 +104,31 @@ public class ViperSlide {
     }
 
     private void handleMacros (Gamepad gamepad2){
-        if (gamepad2.dpad_up) {
-            macroing = true;
+        if (gamepad2.dpad_up || macroing ==1) {
+            macroing = 1;
             slideRot.setTargetPosition(rotMin - 2900);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideRot.setPower(0.2);
-        } else if (gamepad2.dpad_down) {
-            macroing = true;
-            slideRot.setTargetPosition(rotMin);
-            slideRot.setPower(0.1);
+            slideRot.setPower(1);
+        } else if (gamepad2.dpad_down || macroing == -1) {
+            macroing = -1;
+            slideRot.setTargetPosition(rotMin-100);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+        }
+        //TODO: macro for rotation to -1302 for grabbing specimen
+
+        if(macroing==1&&Math.abs(slideRot.getCurrentPosition()-(rotMin-2900))<=10){
+            macroing = 0;
+        }
+
+        if(macroing==-1&&Math.abs(slideRot.getCurrentPosition())<=10){
+            macroing = 0;
         }
 
         if (gamepad2.b) {
-            macroing = false;
+            macroing = 0;
+            slideExt.setPower(0);
+            slideRot.setPower(0);
             slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
