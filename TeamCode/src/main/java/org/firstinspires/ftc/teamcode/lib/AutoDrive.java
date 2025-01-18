@@ -128,7 +128,7 @@ public class AutoDrive {
     static final double     WHEEL_DIAMETER_INCHES   = 4.09 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     STRAFE_COUNTS_PER_INCH = 0; //FIND IRL
+    static final double     STRAFE_COUNTS_PER_INCH = 500; //FIND IRL
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
@@ -141,8 +141,8 @@ public class AutoDrive {
     // Increase these numbers if the heading does not correct strongly enough (eg: a heavy robot or using tracks)
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
     static final double     P_TURN_GAIN            = 0.02;     // Larger is more responsive, but also less stable.
-    static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
-    static final double     P_STRAFE_GAIN           = 0.001;     // Larger is more responsive, but also less stable.
+    static final double     P_DRIVE_GAIN           = 0.0001;     // Larger is more responsive, but also less stable.
+    static final double     P_STRAFE_GAIN           = 0.02;     // Larger is more responsive, but also less stable.
 
     public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu, Telemetry telemetry){
 
@@ -248,7 +248,7 @@ public class AutoDrive {
                 backLeft.isBusy() && backRight.isBusy())) {
 
             // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+            turnSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
 
             // if driving left, the motor correction also needs to be reversed
             if (distance < 0) turnSpeed *= -1.0;
@@ -355,15 +355,18 @@ public class AutoDrive {
      */
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
         targetHeading = desiredHeading;  // Save for telemetry
+                           //90
 
         // Determine the heading current error
         headingError = targetHeading - getHeading();
+
+                       //90-0
 
         // Normalize the error to be within +/- 180 degrees
         headingError = normalizeHeading(headingError);
 
         // Calculate the turning power using proportional gain
-        double turnPower = headingError * proportionalGain;
+        double turnPower = -headingError * proportionalGain;
 
         // Clip the turning power to ensure it stays within the range [-1, 1]
         return Range.clip(turnPower, -1.0, 1.0);

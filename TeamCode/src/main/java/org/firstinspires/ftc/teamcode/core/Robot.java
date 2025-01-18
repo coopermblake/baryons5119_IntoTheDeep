@@ -49,7 +49,8 @@ public class Robot {
         slideExt.setDirection(DcMotorSimple.Direction.REVERSE);
         slideRot.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP, UsbFacingDirection.RIGHT)));
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
+                UsbFacingDirection.RIGHT)));
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
