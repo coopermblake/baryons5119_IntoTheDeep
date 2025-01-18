@@ -33,6 +33,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -89,7 +91,7 @@ import java.util.Locale;
 
 public class AutoDrive {
 
-    public String[] autoDriveTelemetry;
+    private Telemetry telemetry;
     private final DcMotor backLeft;
     private final DcMotor backRight;
     private final DcMotor frontLeft;
@@ -126,6 +128,7 @@ public class AutoDrive {
     static final double     WHEEL_DIAMETER_INCHES   = 4.09 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double     STRAFE_COUNTS_PER_INCH = 0; //FIND IRL
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
@@ -139,14 +142,16 @@ public class AutoDrive {
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
     static final double     P_TURN_GAIN            = 0.02;     // Larger is more responsive, but also less stable.
     static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
+    static final double     P_STRAFE_GAIN           = 0.001;     // Larger is more responsive, but also less stable.
 
-    public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu){
+    public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu, Telemetry telemetry){
 
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.imu = imu;
+        this.telemetry = telemetry;
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -165,7 +170,6 @@ public class AutoDrive {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
     }
-
     public void driveStraight(double maxDriveSpeed,
                               double distance,
                               double heading) {
@@ -193,32 +197,75 @@ public class AutoDrive {
             // Set the required driving speed  (must be positive for RUN_TO_POSITION)
             // Start driving straight, and then enter the control loop
             maxDriveSpeed = Math.abs(maxDriveSpeed);
-            moveRobot(maxDriveSpeed, 0);
+            moveRobot(maxDriveSpeed, 0, 0);
 
             // Keep looping while we are still active, and all motors are running
             while ((frontLeft.isBusy() && frontRight.isBusy() &&
                             backLeft.isBusy() && backRight.isBusy())) {
 
                 // Determine required steering to keep on heading
-                turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
+                turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+                //strafeSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
 
                 // if driving in reverse, the motor correction also needs to be reversed
                 if (distance < 0) turnSpeed *= -1.0;
 
                 // Apply the turning correction to the current driving speed.
-                moveRobot(maxDriveSpeed, turnSpeed);
+                moveRobot(maxDriveSpeed, turnSpeed, 0);
 
                 // Display drive status for the driver.
-                sendTelemetry(true);
+                sendTelemetry(true, false);
             }
 
             // Stop all motion & Turn off RUN_TO_POSITION
-            moveRobot(0, 0);
+            moveRobot(0, 0,0);
             frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+    }
+
+    public void driveStrafe(double maxStrafeSpeed, double distance, double heading){
+        int moveCounts = (int)(distance * COUNTS_PER_INCH);
+        frontLeftTarget = frontLeft.getCurrentPosition() + moveCounts;
+        frontRightTarget = frontRight.getCurrentPosition() - moveCounts;
+        backLeftTarget = backLeft.getCurrentPosition() - moveCounts;
+        backRightTarget = backRight.getCurrentPosition() + moveCounts;
+
+        // Set Target FIRST, then turn on RUN_TO_POSITION
+        frontLeft.setTargetPosition(frontLeftTarget);
+        frontRight.setTargetPosition(frontRightTarget);
+        backLeft.setTargetPosition(backLeftTarget);
+        backRight.setTargetPosition(backRightTarget);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while ((frontLeft.isBusy() && frontRight.isBusy() &&
+                backLeft.isBusy() && backRight.isBusy())) {
+
+            // Determine required steering to keep on heading
+            turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+
+            // if driving left, the motor correction also needs to be reversed
+            if (distance < 0) turnSpeed *= -1.0;
+
+            // Apply the turning correction to the current driving speed.
+            moveRobot(0, turnSpeed, maxStrafeSpeed);
+
+            // Display drive status for the driver.
+            sendTelemetry(true, false);
+        }
+
+        // Stop all motion & Turn off RUN_TO_POSITION
+        moveRobot(0, 0,0);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -250,14 +297,14 @@ public class AutoDrive {
             turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
 
             // Pivot in place by applying the turning correction to all motors
-            moveRobot(0, turnSpeed); // 0 for no forward/backward motion
+            moveRobot(0, turnSpeed,0); // 0 for no forward/backward motion
 
             // Display drive status for the driver
-            sendTelemetry(false);
+            sendTelemetry(false,false);
         }
 
         // Stop all motion
-        moveRobot(0, 0);
+        moveRobot(0, 0,0);
     }
 
     /**
@@ -287,14 +334,14 @@ public class AutoDrive {
             turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
 
             // Apply turning correction to all four motors
-            moveRobot(0, turnSpeed); // No forward/backward or strafing, only turning
+            moveRobot(0, turnSpeed,0); // No forward/backward or strafing, only turning
 
             // Display drive status for the driver
-            sendTelemetry(false);
+            sendTelemetry(false,false);
         }
 
         // Stop all motion
-        moveRobot(0, 0);
+        moveRobot(0, 0,0);
     }
 
     // **********  LOW Level driving functions.  ********************
@@ -343,15 +390,16 @@ public class AutoDrive {
      * @param drive forward/reverse motor speed
      * @param turn  clockwise/counterclockwise turning motor speed.
      */
-    public void moveRobot(double drive, double turn) {
+    public void moveRobot(double drive, double turn, double strafe) {
         driveSpeed = drive;     // Save this value as a class member for telemetry
         turnSpeed  = turn;      // Save this value as a class member for telemetry
+        strafeSpeed = strafe;   // Save this value as a class member for telemetry
 
         // Calculate motor powers for mecanum drive
-        frontLeftSpeed = drive + turn;
-        frontRightSpeed = drive - turn;
-        backLeftSpeed = drive + turn;
-        backRightSpeed = drive - turn;
+        frontLeftSpeed = drive + strafe + turn;
+        frontRightSpeed = drive - strafe - turn;
+        backLeftSpeed = drive - strafe + turn;
+        backRightSpeed = drive + strafe - turn;
 
         // Scale motor powers if any exceed +/- 1.0
         double maxPower = Math.max(Math.abs(frontLeftSpeed),
@@ -376,28 +424,39 @@ public class AutoDrive {
      *
      * @param straight  Set to true if we are driving straight, and the encoder positions should be included in the telemetry.
      */
-    public void sendTelemetry(boolean straight) {
+    //Todo: make this argument simpler with enum
+    public void sendTelemetry(boolean straight, boolean strafe) {
         String motion, targetPos, actualPos, heading, error, wheelSpeeds;
 
-        heading = String.format(Locale.US, "Heading - Target : Current: %5.2f : %5.0f", targetHeading, getHeading());
-        error = String.format(Locale.US,"Error : Steer Pwr: %5.1f : %5.1f", headingError, turnSpeed);
-        wheelSpeeds = String.format(Locale.US, "Wheel Speeds FL:FR:BL:BR: %5.2f : %5.2f : %5.2f : %5.2f",
+        telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeading());
+        telemetry.addData("Error : Steer Pwr:", "%5.1f : %5.1f", headingError, turnSpeed);
+        telemetry.addData( "Wheel Speeds FL:FR:BL:BR:", " %5.2f : %5.2f : %5.2f : %5.2f",
                 frontLeft.getPower(), frontRight.getPower(),
                 backLeft.getPower(), backRight.getPower());
 
         if (straight) {
-            motion = "Motion: Drive Straight";
-            targetPos = String.format(Locale.US, "Target Pos FL:FR:BL:BR: %7d:%7d:%7d:%7d",
-                    frontLeftTarget, frontRightTarget, backLeftTarget, backRightTarget);
-            actualPos = String.format(Locale.US,"Actual Pos FL:FR:BL:BR: %7d:%7d:%7d:%7d",
+            telemetry.addData("Motion", "Straight");
+            telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
+                    frontLeftTarget, frontRightTarget,
+                    backLeftTarget, backRightTarget);
+            telemetry.addData("Actual Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
                     frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
                     backLeft.getCurrentPosition(), backRight.getCurrentPosition());
-
-            autoDriveTelemetry = new String[] { motion, targetPos, actualPos, heading, error, wheelSpeeds };
-        } else {
-            motion = "Motion: Turning";
-            autoDriveTelemetry = new String[] { motion, heading, error, wheelSpeeds };
         }
+        else if(strafe){
+            telemetry.addData("Motion", "Strafe");
+            telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
+                    frontLeftTarget, frontRightTarget,
+                    backLeftTarget, backRightTarget);
+            telemetry.addData("Actual Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
+                    frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
+                    backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+        }
+        else {
+            telemetry.addData("Motion", "Turning");
+        }
+
+        telemetry.update();
 
     }
 

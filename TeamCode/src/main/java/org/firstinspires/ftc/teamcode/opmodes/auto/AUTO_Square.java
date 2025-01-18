@@ -17,35 +17,31 @@ public class AUTO_Square extends OpMode {
         telemetry.update();
     }
 
-    public void start(){
+    public void loop(){
         robot.autoDrive.driveStraight(0.4, 24.0, 0.0);
-        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 90.0);
         robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, 90.0);
-        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, 180.0);
         robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, 180.0);
-        sleep(500);
 
         robot.autoDrive.turnToHeading(0.2, -90.0);
         robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
 
         robot.autoDrive.driveStraight(0.4, 24.0, -90.0);
-        sleep(500);
     }
 
-    public void loop() {
-        for (String i : robot.autoDrive.autoDriveTelemetry) {
-            telemetry.addLine(i);
-        }
-        telemetry.update();
-    }
+//    public void loop() {
+//        for (String i : robot.autoDrive.autoDriveTelemetry) {
+//            telemetry.addLine(i);
+//        }
+//        telemetry.update();
+//    }
 
 
     public void stop() {
