@@ -38,8 +38,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-import java.util.Locale;
-
 /*
  *  This OpMode illustrates the concept of driving an autonomous path based on Gyro (robot.imu) heading and encoder counts.
  *  The code is structured as a LinearOpMode
@@ -170,6 +168,11 @@ public class AutoDrive {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
     }
+
+
+
+
+//    Reverse movement is obtained by setting a negative distance (not speed)
     public void driveStraight(double maxDriveSpeed,
                               double distance,
                               double heading) {

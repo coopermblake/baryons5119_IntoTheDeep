@@ -18,23 +18,20 @@ public class AUTO_Square extends LinearOpMode {
             telemetry.update();
         }
 
+        robot.autoDrive.driveStraight(0.2, 24.0, 0.0);
+        robot.autoDrive.turnToHeading(0.2, 90.0);
+        robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
 
-        robot.autoDrive.driveStrafe(0.2,-24,0.0);
-        robot.autoDrive.driveStrafe(0.2,24,0.0);
-//        robot.autoDrive.driveStraight(0.2, 24.0, 0.0);
-//        robot.autoDrive.turnToHeading(0.2, 90.0);
-//        robot.autoDrive.holdHeading(0.2, 90.0, 0.5);
-//
-//        robot.autoDrive.driveStraight(0.2, 24.0, 90.0);
-//
-//        robot.autoDrive.turnToHeading(0.2, 180.0);
-//        robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
-//
-//        robot.autoDrive.driveStraight(0.2, 24.0, 180.0);
-//
-//        robot.autoDrive.turnToHeading(0.2, -90.0);
-//        robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
-//
-//        robot.autoDrive.driveStraight(0.2, 24.0, -90.0);
+        robot.autoDrive.driveStraight(0.2, 24.0, 90.0);
+
+        robot.autoDrive.turnToHeading(0.2, 180.0);
+        robot.autoDrive.holdHeading(0.2, 180.0, 0.5);
+
+        robot.autoDrive.driveStraight(0.2, 24.0, 180.0);
+
+        robot.autoDrive.turnToHeading(0.2, -90.0);
+        robot.autoDrive.holdHeading(0.2, -90.0, 0.5);
+
+        robot.autoDrive.driveStraight(0.2, 24.0, -90.0);
     }
 }
