@@ -125,8 +125,9 @@ public class AutoDrive {
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.09 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     STRAFE_COUNTS_PER_INCH = 500; //FIND IRL
+            (WHEEL_DIAMETER_INCHES * Math.PI);
+    static double STRAFE_EFFICIENCY_FACTOR = 0.85;
+    static final double     STRAFE_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION)/(WHEEL_DIAMETER_INCHES * Math.PI * STRAFE_EFFICIENCY_FACTOR); //change to the right factor
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
