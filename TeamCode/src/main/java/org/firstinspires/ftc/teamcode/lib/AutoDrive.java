@@ -111,8 +111,9 @@ public class AutoDrive {
     static final double     P_STRAFE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
     //Initializing custom PID instances
-    private CustomPID pidX = new CustomPID(0.05, 0.01, 0.01); // Adjust coefficients
-    private CustomPID pidY = new CustomPID(0.05, 0.01, 0.01); // Adjust coefficients
+    private CustomPID pidX = new CustomPID(0, 0, 0); // Adjust coefficients
+    private CustomPID pidY = new CustomPID(0, 0, 0); // Adjust coefficients
+    //kP = 0.05, kl = 0.01, kD = 0.01 - setting to zero to make sure driveforward, strafe, and drivediagonal work
 
 
     public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu, Telemetry telemetry){
@@ -145,179 +146,148 @@ public class AutoDrive {
 
 
 
-// Reverse movement is obtained by setting a negative distance (not speed)
-    public void driveStraight(double maxDriveSpeed, double distance, double heading) {
-            // Determine new target position for all four motors
-            int moveCounts = (int)(distance * COUNTS_PER_INCH);
-            frontLeftTarget = frontLeft.getCurrentPosition() + moveCounts;
-            frontRightTarget = frontRight.getCurrentPosition() + moveCounts;
-            backLeftTarget = backLeft.getCurrentPosition() + moveCounts;
-            backRightTarget = backRight.getCurrentPosition() + moveCounts;
+    // Reverse movement is obtained by setting a negative distance (not speed)
+    public void driveStraight(double speed, double distance, double heading) {
+        double targetTicksY = distance * COUNTS_PER_INCH;
+        pidY.updateController(); // Reset PID controller
 
-            // Set Target FIRST, then turn on RUN_TO_POSITION
-            frontLeft.setTargetPosition(frontLeftTarget);
-            frontRight.setTargetPosition(frontRightTarget);
-            backLeft.setTargetPosition(backLeftTarget);
-            backRight.setTargetPosition(backRightTarget);
+        while (Math.abs(frontLeft.getCurrentPosition() - targetTicksY) > 10) {
+            // Get current encoder values for Y direction
+            double currentY = (frontLeft.getCurrentPosition() + frontRight.getCurrentPosition()) / 2.0;
 
-            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // Compute PID output for straight driving
+            double powerY = pidY.cycleController(targetTicksY, currentY) * speed;
 
-            // Set the required driving speed  (must be positive for RUN_TO_POSITION)
-            // Start driving straight, and then enter the control loop
-            maxDriveSpeed = Math.abs(maxDriveSpeed);
-            moveRobot(maxDriveSpeed, 0, 0);
+            // Add heading correction
+            double headingCorrection = getSteeringCorrection(heading, P_TURN_GAIN);
 
-            // Keep looping while we are still active, and all motors are running
-            while ((frontLeft.isBusy() && frontRight.isBusy() &&
-                            backLeft.isBusy() && backRight.isBusy())) {
+            // Apply motor powers
+            double frontLeftPower = Range.clip(powerY + headingCorrection, -1.0, 1.0);
+            double frontRightPower = Range.clip(powerY - headingCorrection, -1.0, 1.0);
+            double backLeftPower = Range.clip(powerY + headingCorrection, -1.0, 1.0);
+            double backRightPower = Range.clip(powerY - headingCorrection, -1.0, 1.0);
 
-                // Determine required steering to keep on heading
-                turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
-                //strafeSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
+            frontLeft.setPower(frontLeftPower);
+            frontRight.setPower(frontRightPower);
+            backLeft.setPower(backLeftPower);
+            backRight.setPower(backRightPower);
 
-                // if driving in reverse, the motor correction also needs to be reversed
-                if (distance < 0) turnSpeed *= -1.0;
-
-                // Apply the turning correction to the current driving speed.
-                moveRobot(maxDriveSpeed, turnSpeed, 0);
-
-                // Display drive status for the driver.
-                sendTelemetry(true, false);
-            }
-
-            // Stop all motion & Turn off RUN_TO_POSITION
-            moveRobot(0, 0,0);
-            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public void driveStrafe(double maxStrafeSpeed, double distance, double heading){
-        int moveCounts = (int)(distance * STRAFE_COUNTS_PER_INCH);
-        frontLeftTarget = frontLeft.getCurrentPosition() + moveCounts;
-        frontRightTarget = frontRight.getCurrentPosition() - moveCounts;
-        backLeftTarget = backLeft.getCurrentPosition() - moveCounts;
-        backRightTarget = backRight.getCurrentPosition() + moveCounts;
-
-        // Set Target FIRST, then turn on RUN_TO_POSITION
-        frontLeft.setTargetPosition(frontLeftTarget);
-        frontRight.setTargetPosition(frontRightTarget);
-        backLeft.setTargetPosition(backLeftTarget);
-        backRight.setTargetPosition(backRightTarget);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while ((frontLeft.isBusy() && frontRight.isBusy() &&
-                backLeft.isBusy() && backRight.isBusy())) {
-
-            // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
-
-            // if driving left, the motor correction also needs to be reversed
-            if (distance < 0) turnSpeed *= -1.0;
-
-            // Apply the turning correction to the current driving speed.
-            moveRobot(0, turnSpeed, maxStrafeSpeed);
-
-            // Display drive status for the driver.
-            sendTelemetry(true, false);
-        }
-
-        // Stop all motion & Turn off RUN_TO_POSITION
-        moveRobot(0, 0,0);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    //Diagonal driving method
-    public void driveDiagonal(double speed, double distanceX, double distanceY, double timeoutSeconds) {
-        // Convert distances to encoder ticks using DIAGONAL_COUNTS_PER_INCH
-        double xTicks = distanceX * STRAFE_COUNTS_PER_INCH;;
-        double yTicks = distanceY * COUNTS_PER_INCH;
-
-        // Calculate target positions for diagonal movement
-        frontLeftTarget = frontLeft.getCurrentPosition() + (int) (yTicks + xTicks);
-        backLeftTarget = backLeft.getCurrentPosition() + (int) (yTicks - xTicks);
-        frontRightTarget = frontRight.getCurrentPosition() + (int) (yTicks - xTicks);
-        backRightTarget = backRight.getCurrentPosition() + (int) (yTicks + xTicks);
-
-        // Set target positions
-        frontLeft.setTargetPosition(frontLeftTarget);
-        backLeft.setTargetPosition(backLeftTarget);
-        frontRight.setTargetPosition(frontRightTarget);
-        backRight.setTargetPosition(backRightTarget);
-
-        // Set motors to RUN_TO_POSITION
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // Apply motor powers
-        frontLeft.setPower(Math.abs(speed));
-        backLeft.setPower(Math.abs(speed));
-        frontRight.setPower(Math.abs(speed));
-        backRight.setPower(Math.abs(speed));
-
-        // Timer for timeout
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-
-        // Monitor motor progress
-        while (timer.seconds() < timeoutSeconds && (frontLeft.isBusy() || backLeft.isBusy() || frontRight.isBusy() || backRight.isBusy())) {
-            telemetry.addData("Diagonal Move", "X: %.2f, Y: %.2f", distanceX, distanceY);
-            telemetry.addData("Target Pos FL:FR:BL:BR", "%7d:%7d:%7d:%7d",
-                    frontLeftTarget, frontRightTarget, backLeftTarget, backRightTarget);
-            telemetry.addData("Actual Pos FL:FR:BL:BR", "%7d:%7d:%7d:%7d",
-                    frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
-                    backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+            // Telemetry for debugging
+            telemetry.addData("Drive Straight", "Target Y: %.2f, Current Y: %.2f", targetTicksY, currentY);
+            telemetry.addData("Power Y", powerY);
+            telemetry.addData("Heading Correction", headingCorrection);
             telemetry.update();
         }
 
-        // Stop motors and reset to RUN_USING_ENCODER
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
-        frontRight.setPower(0);
-        backRight.setPower(0);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Stop motors
+        moveRobot(0, 0, 0);
     }
 
-    public void turnToHeading(double maxTurnSpeed, double heading) {
+    public void driveStrafe(double speed, double distance, double heading) {
+        double targetTicksX = distance * STRAFE_COUNTS_PER_INCH;
+        pidX.updateController(); // Reset PID controller
 
-        // Run getSteeringCorrection() once to pre-calculate the current error
-        getSteeringCorrection(heading, P_DRIVE_GAIN);
+        while (Math.abs((frontLeft.getCurrentPosition() - backLeft.getCurrentPosition()) / 2.0 - targetTicksX) > 10) {
+            // Get current encoder values for X direction
+            double currentX = (frontLeft.getCurrentPosition() - backLeft.getCurrentPosition()) / 2.0;
 
-        // Keep looping while OpMode is active and the heading error is greater than the threshold
-        while ((Math.abs(headingError) > HEADING_THRESHOLD)) {
+            // Compute PID output for strafing
+            double powerX = pidX.cycleController(targetTicksX, currentX) * speed;
 
-            // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+            // Add heading correction
+            double headingCorrection = getSteeringCorrection(heading, P_TURN_GAIN);
 
-            // Clip the turn speed to the maximum permitted value
-            turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
+            // Apply motor powers
+            double frontLeftPower = Range.clip(powerX + headingCorrection, -1.0, 1.0);
+            double frontRightPower = Range.clip(-powerX - headingCorrection, -1.0, 1.0);
+            double backLeftPower = Range.clip(-powerX + headingCorrection, -1.0, 1.0);
+            double backRightPower = Range.clip(powerX - headingCorrection, -1.0, 1.0);
 
-            // Pivot in place by applying the turning correction to all motors
-            moveRobot(0, turnSpeed,0); // 0 for no forward/backward motion
+            frontLeft.setPower(frontLeftPower);
+            frontRight.setPower(frontRightPower);
+            backLeft.setPower(backLeftPower);
+            backRight.setPower(backRightPower);
 
-            // Display drive status for the driver
-            sendTelemetry(false,false);
+            // Telemetry for debugging
+            telemetry.addData("Drive Strafe", "Target X: %.2f, Current X: %.2f", targetTicksX, currentX);
+            telemetry.addData("Power X", powerX);
+            telemetry.addData("Heading Correction", headingCorrection);
+            telemetry.update();
         }
 
-        // Stop all motion
-        moveRobot(0, 0,0);
+        // Stop motors
+        moveRobot(0, 0, 0);
+    }
+
+    public void driveDiagonal(double speed, double distanceX, double distanceY, double timeoutSeconds) {
+        double targetTicksX = distanceX * STRAFE_COUNTS_PER_INCH;
+        double targetTicksY = distanceY * COUNTS_PER_INCH;
+
+        pidX.updateController(); // Reset PID controllers
+        pidY.updateController();
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        while (timer.seconds() < timeoutSeconds) {
+            // Get current encoder values
+            double currentX = (frontLeft.getCurrentPosition() - frontRight.getCurrentPosition()) / 2.0;
+            double currentY = (frontLeft.getCurrentPosition() + frontRight.getCurrentPosition()) / 2.0;
+
+            // Compute PID outputs for diagonal driving
+            double powerX = pidX.cycleController(targetTicksX, currentX) * speed;
+            double powerY = pidY.cycleController(targetTicksY, currentY) * speed;
+
+            // Apply motor powers
+            double frontLeftPower = Range.clip(powerY + powerX, -1.0, 1.0);
+            double backLeftPower = Range.clip(powerY - powerX, -1.0, 1.0);
+            double frontRightPower = Range.clip(powerY - powerX, -1.0, 1.0);
+            double backRightPower = Range.clip(powerY + powerX, -1.0, 1.0);
+
+            frontLeft.setPower(frontLeftPower);
+            backLeft.setPower(backLeftPower);
+            frontRight.setPower(frontRightPower);
+            backRight.setPower(backRightPower);
+
+            // Telemetry for debugging
+            telemetry.addData("Diagonal Move", "Target X: %.2f, Target Y: %.2f", targetTicksX, targetTicksY);
+            telemetry.addData("Current X", currentX);
+            telemetry.addData("Current Y", currentY);
+            telemetry.addData("Power X", powerX);
+            telemetry.addData("Power Y", powerY);
+            telemetry.update();
+
+            // Exit loop if both errors are within acceptable ranges
+            if (Math.abs(targetTicksX - currentX) < 10 && Math.abs(targetTicksY - currentY) < 10) {
+                break;
+            }
+        }
+
+        // Stop motors
+        moveRobot(0, 0, 0);
+    }
+
+    public void turnToHeading(double speed, double heading) {
+        pidX.updateController(); // Reuse X PID for simplicity
+
+        while (Math.abs(getHeading() - heading) > HEADING_THRESHOLD) {
+            // Get current heading
+            double currentHeading = getHeading();
+
+            // Compute PID output for turning
+            double turnPower = pidX.cycleController(heading, currentHeading) * speed;
+
+            // Apply turning power
+            moveRobot(0, turnPower, 0);
+
+            // Telemetry for debugging
+            telemetry.addData("Turn To Heading", "Target: %.2f, Current: %.2f", heading, currentHeading);
+            telemetry.addData("Turn Power", turnPower);
+            telemetry.update();
+        }
+
+        // Stop motors
+        moveRobot(0, 0, 0);
     }
 
     public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
