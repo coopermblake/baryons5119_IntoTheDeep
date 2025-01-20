@@ -127,7 +127,8 @@ public class AutoDrive {
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * Math.PI);
     static double STRAFE_EFFICIENCY_FACTOR = 0.85;
-    static final double     STRAFE_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION)/(WHEEL_DIAMETER_INCHES * Math.PI * STRAFE_EFFICIENCY_FACTOR); //change to the right factor
+    static final double     STRAFE_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI * STRAFE_EFFICIENCY_FACTOR); //change to the right factor
+    static final double DIAGONAL_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI * Math.sqrt(2) * STRAFE_EFFICIENCY_FACTOR);
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
@@ -269,6 +270,64 @@ public class AutoDrive {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    //Diagonal driving method
+    public void driveDiagonal(double speed, double distanceX, double distanceY, double timeoutSeconds) {
+        // Convert distances to encoder ticks using DIAGONAL_COUNTS_PER_INCH
+        double xTicks = distanceX * DIAGONAL_COUNTS_PER_INCH;
+        double yTicks = distanceY * DIAGONAL_COUNTS_PER_INCH;
+
+        // Calculate target positions for diagonal movement
+        frontLeftTarget = frontLeft.getCurrentPosition() + (int) (yTicks + xTicks);
+        backLeftTarget = backLeft.getCurrentPosition() + (int) (yTicks - xTicks);
+        frontRightTarget = frontRight.getCurrentPosition() + (int) (yTicks - xTicks);
+        backRightTarget = backRight.getCurrentPosition() + (int) (yTicks + xTicks);
+
+        // Set target positions
+        frontLeft.setTargetPosition(frontLeftTarget);
+        backLeft.setTargetPosition(backLeftTarget);
+        frontRight.setTargetPosition(frontRightTarget);
+        backRight.setTargetPosition(backRightTarget);
+
+        // Set motors to RUN_TO_POSITION
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply motor powers
+        frontLeft.setPower(speed);
+        backLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backRight.setPower(speed);
+
+        // Timer for timeout
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        // Monitor motor progress
+        while (timer.seconds() < timeoutSeconds &&
+                (frontLeft.isBusy() || backLeft.isBusy() || frontRight.isBusy() || backRight.isBusy())) {
+            telemetry.addData("Diagonal Move", "X: %.2f, Y: %.2f", distanceX, distanceY);
+            telemetry.addData("Target Pos FL:FR:BL:BR", "%7d:%7d:%7d:%7d",
+                    frontLeftTarget, frontRightTarget, backLeftTarget, backRightTarget);
+            telemetry.addData("Actual Pos FL:FR:BL:BR", "%7d:%7d:%7d:%7d",
+                    frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
+                    backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop motors and reset to RUN_USING_ENCODER
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
