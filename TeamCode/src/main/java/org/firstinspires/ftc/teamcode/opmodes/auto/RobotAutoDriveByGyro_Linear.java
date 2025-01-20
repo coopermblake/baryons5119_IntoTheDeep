@@ -115,8 +115,7 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
     static final double     COUNTS_PER_MOTOR_REV    = 384.5 ;   // need to make sure this is correct for 435 rpm yellow jacket motor
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.09449 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION)/(WHEEL_DIAMETER_INCHES * 3.1415);
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
@@ -522,48 +521,62 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
     //Diagonal driving method
     public void driveDiagonal(double speed, double distance, double angle) {
         if (opModeIsActive()) {
+            // Convert angle to radians
             double angleRad = Math.toRadians(angle);
 
+            // Calculate x and y components of the motion vector
             double xPower = Math.cos(angleRad); // Sideways component
             double yPower = Math.sin(angleRad); // Forward component
 
+            // Normalize the power components
             double normalizationFactor = Math.max(Math.abs(xPower), Math.abs(yPower));
             xPower /= normalizationFactor;
             yPower /= normalizationFactor;
 
-            double frontLeftPower = (yPower + xPower) * speed;
-            double frontRightPower = (yPower - xPower) * speed;
-            double backLeftPower = (yPower - xPower) * speed;
-            double backRightPower = (yPower + xPower) * speed;
-
+            // Use distance to calculate encoder targets
             int moveCounts = (int) (distance * COUNTS_PER_INCH);
-            frontLeftTarget = robot.frontLeft.getCurrentPosition() + (int) (frontLeftPower * moveCounts);
-            frontRightTarget = robot.frontRight.getCurrentPosition() + (int) (frontRightPower * moveCounts);
-            backLeftTarget = robot.backLeft.getCurrentPosition() + (int) (backLeftPower * moveCounts);
-            backRightTarget = robot.backRight.getCurrentPosition() + (int) (backRightPower * moveCounts);
+            int frontLeftCounts = (int) (moveCounts * (yPower + xPower));
+            int frontRightCounts = (int) (moveCounts * (yPower - xPower));
+            int backLeftCounts = (int) (moveCounts * (yPower - xPower));
+            int backRightCounts = (int) (moveCounts * (yPower + xPower));
+
+            // Set target positions
+            frontLeftTarget = robot.frontLeft.getCurrentPosition() + frontLeftCounts;
+            frontRightTarget = robot.frontRight.getCurrentPosition() + frontRightCounts;
+            backLeftTarget = robot.backLeft.getCurrentPosition() + backLeftCounts;
+            backRightTarget = robot.backRight.getCurrentPosition() + backRightCounts;
 
             robot.frontLeft.setTargetPosition(frontLeftTarget);
             robot.frontRight.setTargetPosition(frontRightTarget);
             robot.backLeft.setTargetPosition(backLeftTarget);
             robot.backRight.setTargetPosition(backRightTarget);
 
+            // Set motors to RUN_TO_POSITION
             robot.frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            robot.frontLeft.setPower(Math.abs(frontLeftPower));
-            robot.frontRight.setPower(Math.abs(frontRightPower));
-            robot.backLeft.setPower(Math.abs(backLeftPower));
-            robot.backRight.setPower(Math.abs(backRightPower));
+            // Apply motor powers
+            double frontLeftPower = Math.abs(speed * (yPower + xPower));
+            double frontRightPower = Math.abs(speed * (yPower - xPower));
+            double backLeftPower = Math.abs(speed * (yPower - xPower));
+            double backRightPower = Math.abs(speed * (yPower + xPower));
 
+            robot.frontLeft.setPower(frontLeftPower);
+            robot.frontRight.setPower(frontRightPower);
+            robot.backLeft.setPower(backLeftPower);
+            robot.backRight.setPower(backRightPower);
+
+            // Wait until motors finish moving
             while (opModeIsActive() &&
-                    (robot.frontLeft.isBusy() && robot.frontRight.isBusy() &&
-                            robot.backLeft.isBusy() && robot.backRight.isBusy())) {
+                    (robot.frontLeft.isBusy() || robot.frontRight.isBusy() ||
+                            robot.backLeft.isBusy() || robot.backRight.isBusy())) {
                 telemetry.addData("Diagonal Move", "Angle: %.2f, Distance: %.2f", angle, distance);
                 telemetry.update();
             }
 
+            // Stop motors and reset to RUN_USING_ENCODER
             robot.frontLeft.setPower(0);
             robot.frontRight.setPower(0);
             robot.backLeft.setPower(0);
