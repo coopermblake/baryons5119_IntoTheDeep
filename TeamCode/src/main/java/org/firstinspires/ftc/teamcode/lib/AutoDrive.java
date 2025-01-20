@@ -124,25 +124,21 @@ public class AutoDrive {
     static final double     COUNTS_PER_MOTOR_REV    = 384.5 ;   // need to make sure this is correct for 435 rpm yellow jacket motor
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.09 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * Math.PI);
-    static double STRAFE_EFFICIENCY_FACTOR = 0.85;
-    static final double     STRAFE_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI * STRAFE_EFFICIENCY_FACTOR); //change to the right factor
-    static final double DIAGONAL_COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI * Math.sqrt(2) * STRAFE_EFFICIENCY_FACTOR);
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
+    static double STRAFE_EFFICIENCY_FACTOR = 0.90;
+    static final double     STRAFE_COUNTS_PER_INCH = ((COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI * STRAFE_EFFICIENCY_FACTOR)); //change to the right factor
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.4;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.2;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
     // We define one value when Turning (larger errors), and the other is used when Driving straight (smaller errors).
     // Increase these numbers if the heading does not correct strongly enough (eg: a heavy robot or using tracks)
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
-    static final double     P_TURN_GAIN            = 0.02;     // Larger is more responsive, but also less stable.
+    static final double     P_TURN_GAIN            = 0.03;     // Larger is more responsive, but also less stable.
     static final double     P_DRIVE_GAIN           = 0.0001;     // Larger is more responsive, but also less stable.
-    static final double     P_STRAFE_GAIN           = 0.02;     // Larger is more responsive, but also less stable.
+    static final double     P_STRAFE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
     public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu, Telemetry telemetry){
 
@@ -276,8 +272,8 @@ public class AutoDrive {
     //Diagonal driving method
     public void driveDiagonal(double speed, double distanceX, double distanceY, double timeoutSeconds) {
         // Convert distances to encoder ticks using DIAGONAL_COUNTS_PER_INCH
-        double xTicks = distanceX * DIAGONAL_COUNTS_PER_INCH;
-        double yTicks = distanceY * DIAGONAL_COUNTS_PER_INCH;
+        double xTicks = distanceX * STRAFE_COUNTS_PER_INCH;;
+        double yTicks = distanceY * COUNTS_PER_INCH;
 
         // Calculate target positions for diagonal movement
         frontLeftTarget = frontLeft.getCurrentPosition() + (int) (yTicks + xTicks);
@@ -298,18 +294,17 @@ public class AutoDrive {
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Apply motor powers
-        frontLeft.setPower(speed);
-        backLeft.setPower(speed);
-        frontRight.setPower(speed);
-        backRight.setPower(speed);
+        frontLeft.setPower(Math.abs(speed));
+        backLeft.setPower(Math.abs(speed));
+        frontRight.setPower(Math.abs(speed));
+        backRight.setPower(Math.abs(speed));
 
         // Timer for timeout
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
 
         // Monitor motor progress
-        while (timer.seconds() < timeoutSeconds &&
-                (frontLeft.isBusy() || backLeft.isBusy() || frontRight.isBusy() || backRight.isBusy())) {
+        while (timer.seconds() < timeoutSeconds && (frontLeft.isBusy() || backLeft.isBusy() || frontRight.isBusy() || backRight.isBusy())) {
             telemetry.addData("Diagonal Move", "X: %.2f, Y: %.2f", distanceX, distanceY);
             telemetry.addData("Target Pos FL:FR:BL:BR", "%7d:%7d:%7d:%7d",
                     frontLeftTarget, frontRightTarget, backLeftTarget, backRightTarget);
