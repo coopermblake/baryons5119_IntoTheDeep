@@ -1,32 +1,3 @@
-/* Copyright (c) 2022 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode.lib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -86,7 +57,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-
 public class AutoDrive {
 
     private final Telemetry telemetry;
@@ -140,6 +110,10 @@ public class AutoDrive {
     static final double     P_DRIVE_GAIN           = 0.0001;     // Larger is more responsive, but also less stable.
     static final double     P_STRAFE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
+    //Initializing custom PID instances
+    private CustomPID pidX = new CustomPID(0.05, 0.01, 0.01); // Adjust coefficients
+    private CustomPID pidY = new CustomPID(0.05, 0.01, 0.01); // Adjust coefficients
+
 
     public AutoDrive(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu, Telemetry telemetry){
 
@@ -171,13 +145,8 @@ public class AutoDrive {
 
 
 
-//    Reverse movement is obtained by setting a negative distance (not speed)
-    public void driveStraight(double maxDriveSpeed,
-                              double distance,
-                              double heading) {
-
-
-
+// Reverse movement is obtained by setting a negative distance (not speed)
+    public void driveStraight(double maxDriveSpeed, double distance, double heading) {
             // Determine new target position for all four motors
             int moveCounts = (int)(distance * COUNTS_PER_INCH);
             frontLeftTarget = frontLeft.getCurrentPosition() + moveCounts;
@@ -225,7 +194,6 @@ public class AutoDrive {
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 
     public void driveStrafe(double maxStrafeSpeed, double distance, double heading){
@@ -327,20 +295,6 @@ public class AutoDrive {
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    /**
-     *  Spin on the central axis to point in a new direction.
-     *  <p>
-     *  Move will stop if either of these conditions occur:
-     *  <p>
-     *  1) Move gets to the heading (angle)
-     *  <p>
-     *  2) Driver stops the OpMode running.
-     *
-     * @param maxTurnSpeed Desired MAX speed of turn. (range 0 to +1.0)
-     * @param heading Absolute Heading Angle (in Degrees) relative to last gyro reset.
-     *              0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *              If a relative angle is required, add/subtract from current heading.
-     */
     public void turnToHeading(double maxTurnSpeed, double heading) {
 
         // Run getSteeringCorrection() once to pre-calculate the current error
@@ -366,19 +320,6 @@ public class AutoDrive {
         moveRobot(0, 0,0);
     }
 
-    /**
-     *  Obtain & hold a heading for a finite amount of time
-     *  <p>
-     *  Move will stop once the requested time has elapsed
-     *  <p>
-     *  This function is useful for giving the robot a moment to stabilize its heading between movements.
-     *
-     * @param maxTurnSpeed      Maximum differential turn speed (range 0 to +1.0)
-     * @param heading    Absolute Heading Angle (in Degrees) relative to last gyro reset.
-     *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
-     *                   If a relative angle is required, add/subtract from current heading.
-     * @param holdTime   Length of time (in seconds) to hold the specified heading.
-     */
     public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
 
         ElapsedTime holdTimer = new ElapsedTime();
@@ -405,13 +346,6 @@ public class AutoDrive {
 
     // **********  LOW Level driving functions.  ********************
 
-    /**
-     * Use a Proportional Controller to determine how much steering correction is required.
-     *
-     * @param desiredHeading        The desired absolute heading (relative to last heading reset)
-     * @param proportionalGain      Gain factor applied to heading error to obtain turning power.
-     * @return                      Turning power needed to get to the required heading.
-     */
     public double getSteeringCorrection(double desiredHeading, double proportionalGain) {
         targetHeading = desiredHeading;  // Save for telemetry
                            //90
