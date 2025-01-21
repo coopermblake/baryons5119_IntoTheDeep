@@ -133,7 +133,7 @@ public class ViperSlide {
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
         }
-        else if(gamepad1.dpad_left || gamepad1.dpad_right || currentMacro == Macro.GOING_HORIZONTAL){
+        else if(gamepad2.dpad_left || gamepad2.dpad_right || currentMacro == Macro.GOING_HORIZONTAL){
             currentMacro = Macro.GOING_HORIZONTAL;
             slideRot.setTargetPosition(rotMin-1302);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
