@@ -111,8 +111,8 @@ public class AutoDrive {
     static final double     P_STRAFE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
     //Initializing custom PID instances
-    private CustomPID pidX = new CustomPID(0, 0, 0); // Adjust coefficients
-    private CustomPID pidY = new CustomPID(0, 0, 0); // Adjust coefficients
+    private CustomPID pidX = new CustomPID(0.02, 0, 0.05); // Adjust coefficients
+    public CustomPID pidY = new CustomPID(0.005, 0, 0); // Adjust coefficients, TODO: MAKE PRIVATE AGAIN
     //kP = 0.05, kl = 0.01, kD = 0.01 - setting to zero to make sure driveforward, strafe, and drivediagonal work
 
 
@@ -149,17 +149,27 @@ public class AutoDrive {
     // Reverse movement is obtained by setting a negative distance (not speed)
     public void driveStraight(double speed, double distance, double heading) {
         double targetTicksY = distance * COUNTS_PER_INCH;
+        int frontLeftInitial = frontLeft.getCurrentPosition();
+        int frontRightInitial = frontRight.getCurrentPosition();
+
+        frontLeftTarget = (int)(frontLeft.getCurrentPosition() + targetTicksY);
+        frontRightTarget = (int)(frontRight.getCurrentPosition() + targetTicksY);
+
         pidY.updateController(); // Reset PID controller
 
-        while (Math.abs(frontLeft.getCurrentPosition() - targetTicksY) > 10) {
+        double currentY = (frontLeft.getCurrentPosition() + frontRight.getCurrentPosition() -
+                frontLeftInitial - frontRightInitial) / 2.0;
+
+        while (Math.abs(currentY - targetTicksY) > 10) {
             // Get current encoder values for Y direction
-            double currentY = (frontLeft.getCurrentPosition() + frontRight.getCurrentPosition()) / 2.0;
+            currentY = (frontLeft.getCurrentPosition() + frontRight.getCurrentPosition() -
+                    frontLeftInitial - frontRightInitial) / 2.0;
 
             // Compute PID output for straight driving
             double powerY = pidY.cycleController(targetTicksY, currentY) * speed;
 
             // Add heading correction
-            double headingCorrection = getSteeringCorrection(heading, P_TURN_GAIN);
+            double headingCorrection = getSteeringCorrection(heading, P_DRIVE_GAIN);
 
             // Apply motor powers
             double frontLeftPower = Range.clip(powerY + headingCorrection, -1.0, 1.0);
@@ -175,6 +185,7 @@ public class AutoDrive {
             // Telemetry for debugging
             telemetry.addData("Drive Straight", "Target Y: %.2f, Current Y: %.2f", targetTicksY, currentY);
             telemetry.addData("Power Y", powerY);
+            telemetry.addData("frontLeft Power", frontLeft.getPower());
             telemetry.addData("Heading Correction", headingCorrection);
             telemetry.update();
         }
@@ -268,27 +279,32 @@ public class AutoDrive {
     }
 
     public void turnToHeading(double speed, double heading) {
-        pidX.updateController(); // Reuse X PID for simplicity
+        pidX.updateController();
+        double MIN_TURN_POWER = 0.0; // Starting with zero
 
-        while (Math.abs(getHeading() - heading) > HEADING_THRESHOLD) {
-            // Get current heading
+        ElapsedTime turnTimer = new ElapsedTime();
+        turnTimer.reset();
+
+        while ((Math.abs(getHeading() - heading) > HEADING_THRESHOLD) &&
+                (turnTimer.seconds() < 5.0)) {
             double currentHeading = getHeading();
-
-            // Compute PID output for turning
             double turnPower = pidX.cycleController(heading, currentHeading) * speed;
 
-            // Apply turning power
+            if (Math.abs(turnPower) < 0.02) {
+                turnPower = Math.copySign(0.02, turnPower);
+            }
+
+            turnPower = Range.clip(turnPower, -1.0, 1.0);
             moveRobot(0, turnPower, 0);
 
-            // Telemetry for debugging
-            telemetry.addData("Turn To Heading", "Target: %.2f, Current: %.2f", heading, currentHeading);
+            telemetry.addData("turnToHeading", "Target: %.2f, Current: %.2f", heading, currentHeading);
             telemetry.addData("Turn Power", turnPower);
             telemetry.update();
         }
 
-        // Stop motors
         moveRobot(0, 0, 0);
     }
+
 
     public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
 

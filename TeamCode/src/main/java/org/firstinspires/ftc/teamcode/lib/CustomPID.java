@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.lib;
+import com.qualcomm.robotcore.util.Range;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -28,7 +29,7 @@ public class CustomPID {
         double d = kD * (err - pErr) / time;
         pErr = err;
         timer.reset();
-        return (p + iT + d);
+        return p + iT + d;
     }
 
     public void updateController() {
