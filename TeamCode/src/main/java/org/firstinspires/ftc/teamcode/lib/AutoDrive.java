@@ -110,6 +110,16 @@ public class AutoDrive {
     static final double     P_DRIVE_GAIN           = 0.0001;     // Larger is more responsive, but also less stable.
     static final double     P_STRAFE_GAIN           = 0.02;     // Larger is more responsive, but also less stable.
 
+    private enum Motion{
+        STRAIGHT,
+        STRAFE,
+        TURN,
+        PID,
+        NONE
+    }
+
+    private Motion currentMotion = Motion.NONE;
+
     //Initializing custom PID instances
     private CustomPID pidX = new CustomPID(0.02, 0, 0.05); // Adjust coefficients
     public CustomPID pidY = new CustomPID(0.005, 0, 0); // Adjust coefficients, TODO: MAKE PRIVATE AGAIN
@@ -144,10 +154,8 @@ public class AutoDrive {
     }
 
 
-
-
     // Reverse movement is obtained by setting a negative distance (not speed)
-    public void driveStraight(double speed, double distance, double heading) {
+    public void driveStraightPID(double speed, double distance, double heading) {
         double targetTicksY = distance * COUNTS_PER_INCH;
         
         int frontLeftInitial = frontLeft.getCurrentPosition();
@@ -161,6 +169,7 @@ public class AutoDrive {
         backRightTarget = (int)(backRight.getCurrentPosition() + targetTicksY);
 
         pidY.updateController(); // Reset PID controller
+        currentMotion = Motion.PID;
         
 
         while (Math.abs(frontLeft.getCurrentPosition() - frontLeftTarget) > 10 || 
@@ -182,25 +191,27 @@ public class AutoDrive {
             turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
 
             // Apply motor powers
-            double frontLeftPower = Range.clip(frontLeftPID + turnSpeed, -1.0, 1.0);
-            double frontRightPower = Range.clip(frontRightPID - turnSpeed, -1.0, 1.0);
-            double backLeftPower = Range.clip(backLeftPID + turnSpeed, -1.0, 1.0);
-            double backRightPower = Range.clip(backRightPID - turnSpeed, -1.0, 1.0);
+            frontLeftSpeed = Range.clip(frontLeftPID + turnSpeed, -1.0, 1.0);
+            frontRightSpeed = Range.clip(frontRightPID - turnSpeed, -1.0, 1.0);
+            backLeftSpeed = Range.clip(backLeftPID + turnSpeed, -1.0, 1.0);
+            backRightSpeed = Range.clip(backRightPID - turnSpeed, -1.0, 1.0);
 
-            frontLeft.setPower(frontLeftPower);
-            frontRight.setPower(frontRightPower);
-            backLeft.setPower(backLeftPower);
-            backRight.setPower(backRightPower);
+            frontLeft.setPower(frontLeftSpeed);
+            frontRight.setPower(frontRightSpeed);
+            backLeft.setPower(backLeftSpeed);
+            backRight.setPower(backRightSpeed);
 
             // Telemetry for debugging
-            telemetry.addData("Drive Straight", "Target Y: %.2f, Current Y: %.2f", targetTicksY, currentY);
+            telemetry.addData("Motion", "Straight");
+            telemetry.addData("Target Y:Current Y", "%.2f:%.2f", targetTicksY, currentY);
             telemetry.update();
-            sendTelemetry(true, false);
-            
+            sendTelemetry();
         }
 
         // Stop motors
         moveRobot(0, 0, 0);
+        currentMotion = Motion.NONE;
+        sendTelemetry();
     }
     
     public void driveStraightEncoder(double speed, double distance, double heading) {
@@ -216,20 +227,22 @@ public class AutoDrive {
         backRight.setTargetPosition(backRightTarget);
         backLeft.setTargetPosition(backLeftTarget);
 
-
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        currentMotion = Motion.STRAIGHT;
+
         while(frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()){
             turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
             moveRobot(speed, turnSpeed, 0);
-            sendTelemetry(true, false);
-
+            sendTelemetry();
         }
 
+        currentMotion = Motion.NONE;
         moveRobot(0,0,0);
+        sendTelemetry();
         
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -251,21 +264,23 @@ public class AutoDrive {
         backRight.setTargetPosition(backRightTarget);
         backLeft.setTargetPosition(backLeftTarget);
 
-
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        currentMotion = Motion.STRAFE;
+
         while(frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()){
             turnSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
             moveRobot(0, turnSpeed, speed);
-            sendTelemetry(false, true);
+            sendTelemetry();
 
         }
 
         moveRobot(0,0,0);
-
+        currentMotion = Motion.NONE;
+        sendTelemetry();
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -273,7 +288,7 @@ public class AutoDrive {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void driveStrafe(double speed, double distance, double heading) {
+    public void driveStrafePID(double speed, double distance, double heading) {
         double targetTicksX = distance * STRAFE_COUNTS_PER_INCH;
 
         int frontLeftInitial = frontLeft.getCurrentPosition();
@@ -307,25 +322,28 @@ public class AutoDrive {
             turnSpeed = getSteeringCorrection(heading, P_STRAFE_GAIN);
 
             // Apply motor powers
-            double frontLeftPower = Range.clip(frontLeftPID + turnSpeed, -1.0, 1.0);
-            double frontRightPower = Range.clip(frontRightPID - turnSpeed, -1.0, 1.0);
-            double backLeftPower = Range.clip(backLeftPID + turnSpeed, -1.0, 1.0);
-            double backRightPower = Range.clip(backRightPID - turnSpeed, -1.0, 1.0);
+            frontLeftSpeed = Range.clip(frontLeftPID + turnSpeed, -1.0, 1.0);
+            frontRightSpeed = Range.clip(frontRightPID - turnSpeed, -1.0, 1.0);
+            backLeftSpeed = Range.clip(backLeftPID + turnSpeed, -1.0, 1.0);
+            backRightSpeed = Range.clip(backRightPID - turnSpeed, -1.0, 1.0);
 
-            frontLeft.setPower(frontLeftPower);
-            frontRight.setPower(frontRightPower);
-            backLeft.setPower(backLeftPower);
-            backRight.setPower(backRightPower);
+            frontLeft.setPower(frontLeftSpeed);
+            frontRight.setPower(frontRightSpeed);
+            backLeft.setPower(backLeftSpeed);
+            backRight.setPower(backRightSpeed);
 
             // Telemetry for debugging
-            telemetry.addData("Drive Straight", "Target Y: %.2f, Current Y: %.2f", targetTicksX, currentX);
+            telemetry.addData("Motion", "Straight");
+            telemetry.addData("Target Y:Current Y", "%.2f:%.2f", targetTicksX, currentX);
             telemetry.update();
-            sendTelemetry(false, true);
+            sendTelemetry();
 
         }
 
         // Stop motors
         moveRobot(0, 0, 0);
+        currentMotion = Motion.NONE;
+        sendTelemetry();
     }
 
     public void driveDiagonal(double speed, double distanceX, double distanceY, double timeoutSeconds) {
@@ -376,7 +394,8 @@ public class AutoDrive {
         moveRobot(0, 0, 0);
     }
 
-    public void turnToHeading(double speed, double heading) {
+    public void turnToHeadingPID(double speed, double heading) {
+        //TODO: fix this
         pidX.updateController();
         double MIN_TURN_POWER = 0.0; // Starting with zero
 
@@ -395,7 +414,7 @@ public class AutoDrive {
             turnPower = Range.clip(turnPower, -1.0, 1.0);
             moveRobot(0, turnPower, 0);
 
-            telemetry.addData("turnToHeading", "Target: %.2f, Current: %.2f", heading, currentHeading);
+            telemetry.addData("turnToHeadingPID", "Target: %.2f, Current: %.2f", heading, currentHeading);
             telemetry.addData("Turn Power", turnPower);
             telemetry.update();
         }
@@ -409,6 +428,7 @@ public class AutoDrive {
         // Run getSteeringCorrection() once to pre-calculate the current error
         getSteeringCorrection(heading, P_DRIVE_GAIN);
 
+        currentMotion = Motion.TURN;
 
         // Keep looping while OpMode is active and the heading error is greater than the threshold
         while ((Math.abs(headingError) > HEADING_THRESHOLD)) {
@@ -427,17 +447,21 @@ public class AutoDrive {
 
 
             // Display drive status for the driver
-            sendTelemetry(false, false);
+            sendTelemetry();
         }
 
 
         // Stop all motion
         moveRobot(0, 0, 0);
+        currentMotion = Motion.NONE;
+        sendTelemetry();
+
     }
 
 
-        public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
+    public void holdHeading(double maxTurnSpeed, double heading, double holdTime) {
 
+        currentMotion = Motion.TURN;
         ElapsedTime holdTimer = new ElapsedTime();
         holdTimer.reset();
 
@@ -453,11 +477,14 @@ public class AutoDrive {
             moveRobot(0, turnSpeed,0); // No forward/backward or strafing, only turning
 
             // Display drive status for the driver
-            sendTelemetry(false,false);
+            sendTelemetry();
         }
 
         // Stop all motion
         moveRobot(0, 0,0);
+        currentMotion = Motion.NONE;
+        sendTelemetry();
+
     }
 
     // **********  LOW Level driving functions.  ********************
@@ -476,7 +503,6 @@ public class AutoDrive {
 
         // Calculate the turning power using proportional gain
         double turnPower = -headingError * proportionalGain;
-        telemetry.addData("steering turn", turnPower);
 
         // Clip the turning power to ensure it stays within the range [-1, 1]
         return Range.clip(turnPower, -1.0, 1.0);
@@ -535,18 +561,11 @@ public class AutoDrive {
     /**
      *  Display the various control parameters while driving
      *
-     * @param straight  Set to true if we are driving straight, and the encoder positions should be included in the telemetry.
+     *
      */
     //Todo: make this argument simpler with enum
-    public void sendTelemetry(boolean straight, boolean strafe) {
-
-        telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeading());
-        telemetry.addData("Error : Steer Pwr:", "%5.1f : %5.1f", headingError, turnSpeed);
-        telemetry.addData( "Wheel Speeds FL:FR:BL:BR:", " %5.2f : %5.2f : %5.2f : %5.2f",
-                frontLeftSpeed, frontRightSpeed,
-                backLeftSpeed, backRightSpeed);
-
-        if (straight) {
+    public void sendTelemetry() {
+        if (currentMotion == Motion.STRAIGHT) {
             telemetry.addData("Motion", "Straight");
             telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
                     frontLeftTarget, frontRightTarget,
@@ -555,7 +574,7 @@ public class AutoDrive {
                     frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
                     backLeft.getCurrentPosition(), backRight.getCurrentPosition());
         }
-        else if(strafe){
+        else if(currentMotion == Motion.STRAFE){
             telemetry.addData("Motion", "Strafe");
             telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
                     frontLeftTarget, frontRightTarget,
@@ -564,12 +583,23 @@ public class AutoDrive {
                     frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(),
                     backLeft.getCurrentPosition(), backRight.getCurrentPosition());
         }
-        else {
+        else if(currentMotion == Motion.TURN) {
             telemetry.addData("Motion", "Turning");
         }
+        else if(currentMotion == Motion.NONE){
+            telemetry.addData("Motion", "None");
+            getSteeringCorrection(getHeading(), 0); //set target heading and heading error for telemetry
+        }
+        else if(currentMotion == Motion.PID){
+            //is handled in PID drive methods
+        }
 
+        telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeading());
+        telemetry.addData("Error : Steer Pwr:", "%5.1f : %5.1f", headingError, turnSpeed);
+        telemetry.addData( "Wheel Speeds FL:FR:BL:BR:", " %5.2f : %5.2f : %5.2f : %5.2f",
+                frontLeftSpeed, frontRightSpeed,
+                backLeftSpeed, backRightSpeed);
         telemetry.update();
-
     }
 
     /**
