@@ -376,6 +376,74 @@ public class AutoDrive {
         moveRobot(0, 0, 0);
     }
 
+    public void driveAndRotate(double speed, double distanceX, double distanceY, double rotationSpeed, double finalHeading, double timeoutSeconds){
+        double targetTicksX = distanceX * STRAFE_COUNTS_PER_INCH;
+        double targetTicksY = distanceY * COUNTS_PER_INCH;
+        boolean translationComplete = false;
+        boolean rotationComplete = false;
+        targetHeading = finalHeading;
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        
+        int frontLeftInitial = frontLeft.getCurrentPosition();
+        int frontRightInitial = frontRight.getCurrentPosition();
+        int backRightInitial = backRight.getCurrentPosition();
+        int backLeftInitial = backLeft.getCurrentPosition();
+
+        double driveSpeed = speed;
+        double rotSpeed = rotationSpeed;
+
+        while(!translationComplete && !rotationComplete && timer.seconds() < timeoutSeconds){
+
+            double currentTicksX = ((frontLeft.getCurrentPosition() - frontLeftInitial) -
+                    (frontRight.getCurrentPosition() - frontRightInitial) -
+                    (backLeft.getCurrentPosition() - backLeftInitial) +
+                    (backRight.getCurrentPosition() - backRightInitial)) / 4.0;
+            double currentTicksY = ((frontLeft.getCurrentPosition() - frontLeftInitial) +
+                    (frontRight.getCurrentPosition() - frontRightInitial) +
+                    (backLeft.getCurrentPosition() - backLeftInitial) +
+                    (backRight.getCurrentPosition() - backRightInitial)) / 4.0;
+            
+            double botHeading = getHeadingDegrees();
+            double botHeadingRads = botHeading * Math.PI / 180;
+            headingError = targetHeading - botHeading; //save for telemetry
+            double diffX = currentTicksX - targetTicksX;
+            double diffY = currentTicksY - targetTicksY;
+
+            if(Math.abs(headingError) < HEADING_THRESHOLD){
+                rotationComplete = true;
+                rotSpeed = 0;
+            }
+
+            if(Math.abs(diffX) < 20 && Math.abs(diffY) < 20){
+                translationComplete = true;
+                driveSpeed = 0;
+            }
+
+            double x = driveSpeed * diffX / Math.sqrt(diffX * diffX + diffY * diffY);
+            double y = driveSpeed * diffY / Math.sqrt(diffX * diffX + diffY * diffY);
+            double r = rotSpeed;
+
+            // Rotate the movement direction counter to the bot's rotation
+            double rotX = x * Math.cos(-botHeadingRads) - y * Math.sin(-botHeadingRads);
+            double rotY = x * Math.sin(-botHeadingRads) + y * Math.cos(-botHeadingRads);
+            rotX = rotX * 1.1;  // Counteract imperfect strafing
+
+            moveRobot(rotY, r, rotX);
+
+            telemetry.addData("X Ticks Current:Target", "%3d:%3d", currentTicksX, targetTicksX);
+            telemetry.addData("Y Ticks Current:Target", "%3d:%3d", currentTicksY, targetTicksY);
+            telemetry.update();
+            sendTelemetry(true, true);
+            
+        }
+        
+        moveRobot(0.0,0.0,0.0);
+
+    }
+    
+
     public void turnToHeading(double speed, double heading) {
         pidX.updateController();
         double MIN_TURN_POWER = 0.0; // Starting with zero
@@ -383,9 +451,9 @@ public class AutoDrive {
         ElapsedTime turnTimer = new ElapsedTime();
         turnTimer.reset();
 
-        while ((Math.abs(getHeading() - heading) > HEADING_THRESHOLD) &&
+        while ((Math.abs(getHeadingDegrees() - heading) > HEADING_THRESHOLD) &&
                 (turnTimer.seconds() < 5.0)) {
-            double currentHeading = getHeading();
+            double currentHeading = getHeadingDegrees();
             double turnPower = pidX.cycleController(heading, currentHeading) * speed;
 
             if (Math.abs(turnPower) < 0.02) {
@@ -467,7 +535,7 @@ public class AutoDrive {
                            //90
 
         // Determine the heading current error
-        headingError = targetHeading - getHeading();
+        headingError = targetHeading - getHeadingDegrees();
 
                        //90-0
 
@@ -540,12 +608,19 @@ public class AutoDrive {
     //Todo: make this argument simpler with enum
     public void sendTelemetry(boolean straight, boolean strafe) {
 
-        telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeading());
+        telemetry.addData("Heading - Target : Current:", "%5.2f : %5.0f", targetHeading, getHeadingDegrees());
         telemetry.addData("Error : Steer Pwr:", "%5.1f : %5.1f", headingError, turnSpeed);
         telemetry.addData( "Wheel Speeds FL:FR:BL:BR:", " %5.2f : %5.2f : %5.2f : %5.2f",
                 frontLeftSpeed, frontRightSpeed,
                 backLeftSpeed, backRightSpeed);
-
+        
+        
+        if(straight && strafe){
+            telemetry.addData("Motion", "Mixed");
+            telemetry.addData("Drive Speed", driveSpeed);
+            telemetry.addData("Turn Speed", turnSpeed);
+            telemetry.addData("Strafe Speed", strafeSpeed);
+        }
         if (straight) {
             telemetry.addData("Motion", "Straight");
             telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
@@ -577,7 +652,7 @@ public class AutoDrive {
      *
      * @return The current yaw angle (heading) in degrees. Returns 0 if IMU data is unavailable.
      */
-    public double getHeading() {
+    public double getHeadingDegrees() {
         try {
             // Retrieve the yaw (heading) angle from the IMU
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
