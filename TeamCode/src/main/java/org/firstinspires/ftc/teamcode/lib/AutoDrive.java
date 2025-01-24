@@ -621,7 +621,7 @@ public class AutoDrive {
             telemetry.addData("Turn Speed", turnSpeed);
             telemetry.addData("Strafe Speed", strafeSpeed);
         }
-        if (straight) {
+        else if (straight) {
             telemetry.addData("Motion", "Straight");
             telemetry.addData("Target Pos FL:FR:BL:BR:", " %7d:%7d:%7d:%7d",
                     frontLeftTarget, frontRightTarget,
