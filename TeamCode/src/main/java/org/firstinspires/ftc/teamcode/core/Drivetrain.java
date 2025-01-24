@@ -39,8 +39,16 @@ public class Drivetrain {
         double inputRot = gamepad1.right_stick_x;
 
         //check buttons
+        /*DEBOUNCE LOGIC
+        debounce starts false
+        after button is pressed, toggle fieldCentric and turn debounce true
+        debounce true means nothing will happen until button is released
+        after button is released, debounce will go back to false
+        ready for next button press
+         */
         if(gamepad1.x && !debounce){
             fieldCentric = !fieldCentric;
+            debounce = true;
         } else if (!gamepad1.x && debounce) {
             debounce = false;
         }

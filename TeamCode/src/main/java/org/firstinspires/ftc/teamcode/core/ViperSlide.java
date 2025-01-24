@@ -22,6 +22,7 @@ public class ViperSlide {
     private final double extSensitivity = 1;
     private long lastCycle;
 
+    private int lastRotPosition;
     public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
         this.slideExt = slideExt;
         this.slideRot = slideRot;
@@ -44,6 +45,20 @@ public class ViperSlide {
            inputExt = 0;
         }
 
+
+       //hold position if not trying to move slideRot
+       if(inputRot == 0){
+            slideRot.setTargetPosition(lastRotPosition);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            if(slideRot.getCurrentPosition() < lastRotPosition){
+                inputRot = 1.0; //only move if rot has dropped too low
+            }
+       }
+       else{
+           slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+           lastRotPosition = slideRot.getCurrentPosition();
+       }
+
         slideRot.setPower(-inputRot);
         slideExt.setPower(inputExt);
 
@@ -51,7 +66,7 @@ public class ViperSlide {
 
     public void resetEncoder(){
         rotMin = slideRot.getCurrentPosition();
-        rotMax = rotMin + 4000;
+        rotMax = rotMin - 4000;
         extMin = slideExt.getCurrentPosition();
         extMaxLow = extMin + 3300;
         extMaxHigh = extMin + 4000;
@@ -81,7 +96,7 @@ public class ViperSlide {
         if (driverControl) {
             handleGripper();
 
-            if(gamepad1.y){
+            if(gamepad2.start){
                 resetEncoder();
             }
 
@@ -91,14 +106,10 @@ public class ViperSlide {
             if (Math.abs(-gamepad2.right_stick_y) < 0.05) {
                 //slideRot.setPower(0);
                 rotPower=0;
-            } else {
-                //slideRot.setPower(-gamepad2.right_stick_y);
             }
             if (Math.abs(-gamepad2.left_stick_y) < 0.05) {
                 //slideExt.setPower(0);
                 extPower = 0;
-            } else {
-                //slideExt.setPower(-gamepad2.left_stick_y);
             }
             moveSlide(rotPower, extPower);
             handleMacros(gamepad2);
