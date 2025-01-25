@@ -100,7 +100,7 @@ public class ViperSlide {
         if (driverControl && currentMacro == Macro.NONE) {
             handleGripper();
 
-            if (gamepad1.y) {
+            if (gamepad2.y) {
                 resetEncoder();
             }
 
@@ -121,25 +121,42 @@ public class ViperSlide {
 
         //up for up, down for down, left/right for horizontal, B for stop
 
-        if (gamepad2.dpad_up || currentMacro == Macro.GOING_UP) {
+        if (gamepad2.dpad_up) {
             currentMacro = Macro.GOING_UP;
             slideRot.setTargetPosition(rotMin - 2900);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideRot.setPower(1);
+            slideExt.setPower(0);
         }
-        else if (gamepad2.dpad_down || currentMacro == Macro.GOING_DOWN) {
+        if (gamepad2.dpad_down) {
             currentMacro = Macro.GOING_DOWN;
             slideRot.setTargetPosition(rotMin-100);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideRot.setPower(1);
+            slideExt.setPower(0);
         }
-        else if(gamepad1.dpad_left || gamepad1.dpad_right || currentMacro == Macro.GOING_HORIZONTAL){
+        if(gamepad2.dpad_right){
             currentMacro = Macro.GOING_HORIZONTAL;
-            slideRot.setTargetPosition(rotMin-1302);
+            slideRot.setTargetPosition(rotMin-1100);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideRot.setPower(1);
+            slideExt.setPower(0);
+
         }
-        if (gamepad2.b || Math.abs( slideRot.getCurrentPosition()-slideRot.getTargetPosition() )<=10) {
+
+        if(gamepad2.dpad_left){
+            currentMacro = Macro.GOING_HORIZONTAL;
+            slideExt.setTargetPosition(extMin+500);
+            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setPower(1);
+        }
+
+
+        if (gamepad2.b || Math.abs( slideRot.getCurrentPosition()-slideRot.getTargetPosition() )<=10
+                 || Math.abs( slideExt.getCurrentPosition()-slideExt.getTargetPosition())<=10) {
             currentMacro = Macro.NONE;
             slideExt.setPower(0);
             slideRot.setPower(0);
