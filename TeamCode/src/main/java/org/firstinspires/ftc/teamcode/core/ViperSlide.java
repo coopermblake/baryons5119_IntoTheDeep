@@ -5,6 +5,12 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ViperSlide {
+
+
+    //TODO: reverse rotation motor so we can run all slide movements through moveSlide()
+    //Currently, we have it set up to negate the rotation power b/c it's opposite of controller input
+    //this means it would need extra power switching (pos to neg) a lot for the macros
+
     public final DcMotor slideExt;
     public final DcMotor slideRot;
     private final Gamepad gamepad1;
@@ -13,6 +19,17 @@ public class ViperSlide {
     private boolean debounce = false;
     private boolean gripperPosition = false;
     public boolean driverControl = false;
+
+    public enum Macro{
+        GOING_UP,
+        GOING_DOWN,
+        NONE,
+        GOING_HORIZONTAL
+    }
+
+    public Macro currentMacro;
+
+
     public int rotMin;
     public int rotMax;
     public int extMin;
@@ -33,15 +50,15 @@ public class ViperSlide {
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         resetEncoder();
+        currentMacro = Macro.NONE;
+
     }
 
     public void moveSlide(double inputRot, double inputExt) {
-       if(slideExt.getCurrentPosition()> extMaxLow && inputExt > 0 && slideRot.getCurrentPosition() - rotMin > -2500){
-           inputExt = 0;
-       }
-
-       else if (slideExt.getCurrentPosition()>extMaxHigh && inputExt > 0){
-           inputExt = 0;
+        if (slideExt.getCurrentPosition() > extMaxLow && inputExt > 0 && slideRot.getCurrentPosition() - rotMin > -2500) {
+            inputExt = 0;
+        } else if (slideExt.getCurrentPosition() > extMaxHigh && inputExt > 0) {
+            inputExt = 0;
         }
 
         slideRot.setPower(-inputRot);
@@ -49,9 +66,9 @@ public class ViperSlide {
 
     }
 
-    public void resetEncoder(){
+    public void resetEncoder() {
         rotMin = slideRot.getCurrentPosition();
-        rotMax = rotMin + 4000;
+        rotMax = rotMin - 4000;
         extMin = slideExt.getCurrentPosition();
         extMaxLow = extMin + 3300;
         extMaxHigh = extMin + 4000;
@@ -78,34 +95,73 @@ public class ViperSlide {
     public void teleopSlideMovement(Gamepad gamepad1, Gamepad gamepad2) {
         double extPower;
         double rotPower;
-        if (driverControl) {
+
+        handleMacros(gamepad2);
+        if (driverControl && currentMacro == Macro.NONE) {
             handleGripper();
 
-            if(gamepad1.y){
+            if (gamepad2.y) {
                 resetEncoder();
             }
 
-            //moveSlide(-gamepad2.right_stick_y, -gamepad2.left_stick_y);
-            rotPower=-gamepad2.right_stick_y;
+            rotPower = -gamepad2.right_stick_y;
             extPower = -gamepad2.left_stick_y;
             if (Math.abs(-gamepad2.right_stick_y) < 0.05) {
-                //slideRot.setPower(0);
-                rotPower=0;
-            } else {
-                //slideRot.setPower(-gamepad2.right_stick_y);
+                rotPower = 0;
             }
             if (Math.abs(-gamepad2.left_stick_y) < 0.05) {
-                //slideExt.setPower(0);
                 extPower = 0;
-            } else {
-                //slideExt.setPower(-gamepad2.left_stick_y);
             }
             moveSlide(rotPower, extPower);
-            handleMacros(gamepad2);
+
         }
     }
 
-    private void handleMacros(Gamepad gamepad2) {
+    private void handleMacros (Gamepad gamepad2){
 
+        //up for up, down for down, left/right for horizontal, B for stop
+
+        if (gamepad2.dpad_up) {
+            currentMacro = Macro.GOING_UP;
+            slideRot.setTargetPosition(rotMin - 2900);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setPower(1);
+            slideExt.setPower(0);
+        }
+        if (gamepad2.dpad_down) {
+            currentMacro = Macro.GOING_DOWN;
+            slideRot.setTargetPosition(rotMin-100);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setPower(1);
+            slideExt.setPower(0);
+        }
+        if(gamepad2.dpad_right){
+            currentMacro = Macro.GOING_HORIZONTAL;
+            slideRot.setTargetPosition(rotMin-1100);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setPower(1);
+            slideExt.setPower(0);
+
+        }
+
+        if(gamepad2.dpad_left){
+            currentMacro = Macro.GOING_HORIZONTAL;
+            slideExt.setTargetPosition(extMin+500);
+            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setPower(1);
+        }
+
+
+        if (gamepad2.b || Math.abs( slideRot.getCurrentPosition()-slideRot.getTargetPosition() )<=10
+                 || Math.abs( slideExt.getCurrentPosition()-slideExt.getTargetPosition())<=10) {
+            currentMacro = Macro.NONE;
+            slideExt.setPower(0);
+            slideRot.setPower(0);
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 }
