@@ -14,65 +14,55 @@ public class testMode extends LinearOpMode {
         //boolean heldRight = false;
         Robot robot = new Robot(hardwareMap, gamepad1, gamepad2);
         waitForStart();
+        int encoderStart;
 
-        int[] encoders = new int[4];
-        encoders[0] = robot.backLeft.getCurrentPosition();
-        encoders[1] = robot.backRight.getCurrentPosition();
-        encoders[2] = robot.frontLeft.getCurrentPosition();
-        encoders[3] = robot.frontRight.getCurrentPosition();
-
+        encoderStart = robot.backLeft.getCurrentPosition();
         robot.backLeft.setPower(0.5);
-        robot.backRight.setPower(0.5);
-        robot.frontLeft.setPower(0.5);
-        robot.frontRight.setPower(0.5);
-
         android.os.SystemClock.sleep(125);
-
+        if (robot.backLeft.getCurrentPosition() > encoderStart + 20) {
+            telemetry.addLine("backLeft encoder test passed");
+        } else {
+            telemetry.addLine("backLeft encoder test FAILED");
+        }
         robot.backLeft.setPower(0);
+
+        encoderStart = robot.backRight.getCurrentPosition();
+        robot.backRight.setPower(0.5);
+        android.os.SystemClock.sleep(125);
+        if (robot.backRight.getCurrentPosition() > encoderStart + 20) {
+            telemetry.addLine("backRight encoder test passed");
+        } else {
+            telemetry.addLine("backRight encoder test FAILED");
+        }
         robot.backRight.setPower(0);
+
+        encoderStart = robot.frontLeft.getCurrentPosition();
+        robot.frontLeft.setPower(0.5);
+        android.os.SystemClock.sleep(125);
+        if (robot.frontLeft.getCurrentPosition() > encoderStart + 20) {
+            telemetry.addLine("frontLeft encoder test passed");
+        } else {
+            telemetry.addLine("frontLeft encoder test FAILED");
+        }
         robot.frontLeft.setPower(0);
+
+        // UPPER 0.47
+        // LOWER 0.81
+        encoderStart = robot.frontRight.getCurrentPosition();
+        robot.frontRight.setPower(0.5);
+        android.os.SystemClock.sleep(125);
+        if (robot.frontRight.getCurrentPosition() > encoderStart + 20) {
+            telemetry.addLine("frontRight encoder test passed");
+        } else {
+            telemetry.addLine("frontRight encoder test FAILED");
+        }
         robot.frontRight.setPower(0);
 
-        if (robot.backLeft.getCurrentPosition() > encoders[0] + 20) {
-            telemetry.addLine("backLeft encoder test passed");
-        } else if (robot.backLeft.getCurrentPosition() < encoders[0] - 20) {
-            telemetry.addLine("backLeft encoder is reversed");
-        } else {
-            telemetry.addLine("backLeft encoder is not ticking");
-        }
-
-        if (robot.backRight.getCurrentPosition() > encoders[1] + 20) {
-            telemetry.addLine("backRight encoder test passed");
-        } else if (robot.backRight.getCurrentPosition() < encoders[1] - 20) {
-            telemetry.addLine("backRight encoder is reversed");
-        } else {
-            telemetry.addLine("backRight encoder is not ticking");
-        }
-
-        if (robot.frontLeft.getCurrentPosition() > encoders[2] + 20) {
-            telemetry.addLine("frontLeft encoder test passed");
-        } else if (robot.frontLeft.getCurrentPosition() < encoders[2] - 20) {
-            telemetry.addLine("frontLeft encoder is reversed");
-        } else {
-            telemetry.addLine("frontLeft encoder is not ticking");
-        }
-
-        if (robot.frontRight.getCurrentPosition() > encoders[3] + 20) {
-            telemetry.addLine("frontRight encoder test passed");
-        } else if (robot.frontRight.getCurrentPosition() < encoders[3] - 20) {
-            telemetry.addLine("frontRight encoder is reversed");
-        } else {
-            telemetry.addLine("frontRight encoder is not ticking");
-        }
-
-
-        telemetry.addLine("Press A to continue.");
         telemetry.update();
-        while (!gamepad1.a) {
-
-        }
+        android.os.SystemClock.sleep(1500);
         robot.slideRot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         while(opModeIsActive()) {
+            // note: encoder for backLeft is currently broken
             telemetry.addData("backLeft encoder value:", robot.backLeft.getCurrentPosition());
             telemetry.addData("backRight encoder value:", robot.backRight.getCurrentPosition());
             telemetry.addData("frontLeft encoder value:", robot.frontLeft.getCurrentPosition());
@@ -117,10 +107,21 @@ public class testMode extends LinearOpMode {
             } else {
                 robot.slideExt.setPower(0);
             }
-            if (robot.gamepad1.right_trigger > 0.05) {
+            if (robot.gamepad2.right_trigger > 0.05) {
                 robot.gripper.setPosition(0.81);
-            } else if (robot.gamepad1.left_trigger > 0.05) {
+                //if (!heldRight) {
+                //    robot.gripper.setPosition(robot.gripper.getPosition() + 0.05);
+                //    heldRight = true;
+                //}
+            } else if (robot.gamepad2.left_trigger > 0.05) {
                 robot.gripper.setPosition(0.47);
+                //if (!heldRight) {
+                //    robot.gripper.setPosition(robot.gripper.getPosition() - 0.06);
+                //    heldRight = true;
+                //}
+            } else {
+                robot.gripper.setPosition(0.64);
+                //heldRight = false;
             }
         }
     }
