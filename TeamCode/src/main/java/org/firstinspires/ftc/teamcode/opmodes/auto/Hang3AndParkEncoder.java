@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.core.Robot;
 @TeleOp(name = "EncoderHang3", group = "Competition Opmodes")
 public class Hang3AndParkEncoder extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
-        // TODO: huge hack, please replace this later
         Robot robot = new Robot(hardwareMap, gamepad1, gamepad2);
         robot.initAutoDrive(telemetry);
         robot.gripper.setPosition(0.81);
