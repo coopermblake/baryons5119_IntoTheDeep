@@ -64,16 +64,16 @@ public class Drivetrain {
 
         // Divisor is used to scale the other inputs if an input is too large or slow down the robot
         double divisor = Math.max(Math.abs(inputY) + Math.abs(inputX) + Math.abs(inputRot), 1) + gamepad1.right_trigger*3;
-        if (gamepad2.dpad_up) {
-            inputY += 0.25;
-        } else if (gamepad2.dpad_down) {
-            inputY -= 0.25;
-        }
-        if (gamepad2.right_bumper) {
-            inputRot += 0.125;
-        } else if (gamepad2.left_bumper) {
-            inputRot -= 0.125;
-        }
+//        if (gamepad2.dpad_up) {
+//            inputY += 0.25;
+//        } else if (gamepad2.dpad_down) {
+//            inputY -= 0.25;
+//        }
+//        if (gamepad2.right_bumper) {
+//            inputRot += 0.125;
+//        } else if (gamepad2.left_bumper) {
+//            inputRot -= 0.125;
+//        }
 
 
 

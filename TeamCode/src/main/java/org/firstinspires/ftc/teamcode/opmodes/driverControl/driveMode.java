@@ -21,6 +21,7 @@ public class driveMode extends LinearOpMode {
             robot.drivetrain.driveRobot(gamepad1, gamepad2, heading);
             robot.viperSlide.teleopSlideMovement(gamepad1, gamepad2);
             telemetry.addData("Heading degrees:", robot.getYawDegrees());
+            telemetry.addData("current macro", robot.viperSlide.currentMacro);
             telemetry.addData("field centric", robot.drivetrain.getFieldCentric());
             telemetry.addData("ext", robot.viperSlide.slideExt.getCurrentPosition());
             telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
