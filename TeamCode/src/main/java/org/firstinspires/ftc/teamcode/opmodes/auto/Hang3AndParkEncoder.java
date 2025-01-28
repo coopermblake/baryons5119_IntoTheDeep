@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.core.Robot;
 
-@TeleOp(name = "EncoderHang3", group = "Competition Opmodes")
+@Autonomous(name = "EncoderHang3", group = "Competition Opmodes")
 public class Hang3AndParkEncoder extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, gamepad1, gamepad2);
@@ -58,8 +58,11 @@ public class Hang3AndParkEncoder extends LinearOpMode {
         robot.autoDrive.driveStraight(0.6, 47, 180.0);
 
         //pick up second specimen
-        robot.slideRot.setTargetPosition(lowPosition - 1100);
-        robot.slideExt.setTargetPosition(minPosition + 1000);
+        //robot.slideRot.setTargetPosition(lowPosition - 1100); old pivot
+        //robot.slideRot.setTargetPosition(lowPosition - 1200);
+        robot.slideRot.setTargetPosition(lowPosition - 1150);
+        //robot.slideExt.setTargetPosition(minPosition + 1000); old extension
+        robot.slideExt.setTargetPosition(minPosition + 700);
 
         robot.slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -105,7 +108,9 @@ public class Hang3AndParkEncoder extends LinearOpMode {
 
         //drive over to the next specimen rotate and drive forward
         robot.gripper.setPosition(0.47);
-        robot.slideRot.setTargetPosition(lowPosition - 1100);
+        //robot.slideRot.setTargetPosition(lowPosition - 1100); first one
+        //robot.slideRot.setTargetPosition(lowPosition - 1200); second one
+        robot.slideRot.setTargetPosition(lowPosition - 1150);
         robot.slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         robot.autoDrive.driveDiagonal(0.6,42,-17,7);
@@ -114,7 +119,8 @@ public class Hang3AndParkEncoder extends LinearOpMode {
         robot.autoDrive.driveStraight(0.5, 5,0);
 
         //pick up the next specimen
-        robot.slideExt.setTargetPosition(minPosition + 1000);
+        //robot.slideExt.setTargetPosition(minPosition + 1000);
+        robot.slideExt.setTargetPosition(minPosition + 700);
         robot.slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.slideExt.setPower(1);
         while((robot.slideExt.isBusy() || robot.slideRot.isBusy()) && opModeIsActive()) {}
@@ -151,7 +157,7 @@ public class Hang3AndParkEncoder extends LinearOpMode {
         //release
         robot.gripper.setPosition(0.47);
         robot.slideExt.setTargetPosition(minPosition);
-        robot.slideRot.setTargetPosition(minPosition + 650);
+        robot.slideRot.setTargetPosition(lowPosition + 650);
         sleep(1000);
     }
 }
