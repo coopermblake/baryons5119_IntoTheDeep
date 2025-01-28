@@ -50,7 +50,7 @@ public class ViperSlide {
        if(inputRot == 0){
             slideRot.setTargetPosition(lastRotPosition);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            if(slideRot.getCurrentPosition() < lastRotPosition){
+            if(slideRot.getCurrentPosition() > lastRotPosition){
                 inputRot = 1.0; //only move if rot has dropped too low
             }
        }
@@ -69,7 +69,7 @@ public class ViperSlide {
         rotMax = rotMin - 4000;
         extMin = slideExt.getCurrentPosition();
         extMaxLow = extMin + 3300;
-        extMaxHigh = extMin + 4000;
+        extMaxHigh = extMin + 4120;
 
     }
 
