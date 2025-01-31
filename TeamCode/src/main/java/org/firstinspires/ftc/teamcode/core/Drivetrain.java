@@ -41,6 +41,7 @@ public class Drivetrain {
         //check buttons
         if(gamepad1.x && !debounce){
             fieldCentric = !fieldCentric;
+            debounce = true;
         } else if (!gamepad1.x && debounce) {
             debounce = false;
         }
