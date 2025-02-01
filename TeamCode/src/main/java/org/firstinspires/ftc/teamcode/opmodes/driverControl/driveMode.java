@@ -14,7 +14,7 @@ public class driveMode extends LinearOpMode {
         long lastCycleStart = System.currentTimeMillis();
         waitForStart();
         robot.viperSlide.driverControl = true;
-        robot.imu.resetYaw();
+        robot.teleOpIMU.resetYaw();
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
