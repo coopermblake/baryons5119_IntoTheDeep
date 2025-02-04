@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -44,7 +47,7 @@ public class RR_Auto extends LinearOpMode {
                                                 gamepad1, gamepad2,
                                                 hardwareMap.get(Servo.class, "gripper"));
 
-        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(initialPose)
+        TrajectoryActionBuilder startToBar = mecanumDrive.actionBuilder(initialPose)
                 .setTangent(Math.toRadians(90))
                 .lineToY(Acons._1_y);
 
@@ -62,7 +65,20 @@ public class RR_Auto extends LinearOpMode {
         if(isStopRequested()) return;
 
         Actions.runBlocking(
-                tab.build()
+                    new SequentialAction(
+                            //raise arm and drive to bar
+                            new ParallelAction(
+                                    startToBar.build(),
+                                    viperSlide.rotateUp(),
+                                    new SequentialAction(
+                                            new SleepAction(0.2),
+                                            viperSlide.extendToHang()
+                                    )
+                            ),
+                            viperSlide.retractToHang(),
+                            viperSlide.openGripper()
+                )
+
         );
 
     }
