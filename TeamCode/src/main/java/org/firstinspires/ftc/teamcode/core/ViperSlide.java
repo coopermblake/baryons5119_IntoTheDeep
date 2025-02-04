@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 public class ViperSlide {
     public final DcMotor slideExt;
@@ -119,4 +124,110 @@ public class ViperSlide {
     private void handleMacros(Gamepad gamepad2) {
 
     }
+
+    //lift arm up to hang
+    public class RotateUp implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            int error = slideRot.getCurrentPosition() - (rotMin-Arm.rot_hang);
+            double power = -0.1*(error);
+            power = Range.clip(power, -1, 1);
+            slideRot.setPower(power);
+            return Math.abs(error)>10;
+        }
+    }
+
+    //extend arm to hang
+    public class ExtendToHang implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            int error = slideExt.getCurrentPosition() - (extMin+Arm.ext_hang);
+            double power = -0.1*(error);
+            power = Range.clip(power, -1, 1);
+            slideExt.setPower(power);
+            return Math.abs(error)>10;
+        }
+    }
+
+    //lower arm to grabbing
+    public class RotateHorizontal implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            int error = slideRot.getCurrentPosition() - (rotMin-Arm.rot_hor);
+            double power = -0.1*(error);
+            power = Range.clip(power, -1, 1);
+            slideRot.setPower(power);
+            return Math.abs(error)>10;
+        }
+    }
+
+    //retract arm for Hang
+    public class RetractToHang implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            int error = slideExt.getCurrentPosition() - (extMin+Arm.ret_hang);
+            double power = -0.1*(error);
+            power = Range.clip(power, -1, 1);
+            slideExt.setPower(power);
+            return Math.abs(error)>10;
+        }
+    }
+
+    //extend arm for grabbing
+    public class ExtendToGrab implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            int error = slideExt.getCurrentPosition() - (extMin+Arm.ext_grab);
+            double power = -0.1*(error);
+            power = Range.clip(power, -1, 1);
+            slideExt.setPower(power);
+            return Math.abs(error)>10;
+        }
+    }
+
+    public class CloseGripper implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            gripper.setPosition(0.81);
+            return false;
+        }
+    }
+
+    public class OpenGripper implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            gripper.setPosition(0.47);
+            return false;
+        }
+    }
+
+    public Action rotateUp(){
+        return new RotateUp();
+    }
+    public Action rotateHorizontal(){
+        return new RotateHorizontal();
+    }
+    public Action extendToHang(){
+        return new ExtendToHang();
+    }
+    public Action retractToHang(){
+        return new RetractToHang();
+    }
+    public Action extendToGrab(){
+        return new ExtendToGrab();
+    }
+    public Action openGripper(){
+        return new OpenGripper();
+    }
+    public Action closeGripper(){
+        return new CloseGripper();
+    }
+    public static class Arm{
+        public static int ext_hang = 1200;
+        public static int ret_hang = 600;
+        public static int ext_grab = 400;
+        public static int rot_hang = 2900;
+        public static int rot_hor = 1000;
+    }
+
 }
