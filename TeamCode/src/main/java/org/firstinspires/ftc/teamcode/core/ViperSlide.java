@@ -28,6 +28,25 @@ public class ViperSlide {
     private long lastCycle;
 
     private int lastRotPosition;
+
+    public enum RotateMacro{
+        GOING_UP,
+        GOING_DOWN,
+        NONE,
+        GOING_HORIZONTAL
+    }
+
+    public RotateMacro rotateMacro = RotateMacro.NONE;
+
+    public enum ExtendMacro{
+        NONE,
+        MIN,
+        HANG,
+        GRAB
+    }
+
+    public ExtendMacro extendMacro = ExtendMacro.NONE;
+
     public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
         this.slideExt = slideExt;
         this.slideRot = slideRot;
@@ -56,7 +75,7 @@ public class ViperSlide {
 
 
        //hold position if not trying to move slideRot
-       if(inputRot == 0){
+       if(inputRot == 0 && rotateMacro == RotateMacro.NONE){
             slideRot.setTargetPosition(lastRotPosition);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             if(slideRot.getCurrentPosition() > lastRotPosition){
@@ -102,12 +121,18 @@ public class ViperSlide {
     public void teleopSlideMovement(Gamepad gamepad1, Gamepad gamepad2) {
         double extPower;
         double rotPower;
-        if (driverControl) {
+        //TODO: make separate funcions to allow macroing one while manual the other
+
+        handleRotateMacros(gamepad2);
+        handleExtendMacros(gamepad2);
+
+        if (driverControl && rotateMacro == RotateMacro.NONE && extendMacro == ExtendMacro.NONE) {
             handleGripper();
 
             if(gamepad2.start){
                 resetEncoder();
             }
+
 
             //moveSlide(-gamepad2.right_stick_y, -gamepad2.left_stick_y);
             rotPower=-gamepad2.right_stick_y;
@@ -121,11 +146,76 @@ public class ViperSlide {
                 extPower = 0;
             }
             moveSlide(rotPower, extPower);
-            handleMacros(gamepad2);
         }
     }
 
-    private void handleMacros(Gamepad gamepad2) {
+    private void handleRotateMacros(Gamepad gamepad2){
+
+
+        //up for up, down for down, right for horizontal, left for stop
+        //TODO: make these values based on the Arm config class
+
+
+        if (gamepad2.dpad_up) {
+            rotateMacro = RotateMacro.GOING_UP;
+            slideRot.setTargetPosition(rotMin - 2900);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+        }
+        if (gamepad2.dpad_down) {
+            rotateMacro = RotateMacro.GOING_DOWN;
+            slideRot.setTargetPosition(rotMin-100);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+        }
+        if(gamepad2.dpad_right){
+            rotateMacro = RotateMacro.GOING_HORIZONTAL;
+            slideRot.setTargetPosition(rotMin-1100);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+        }
+
+        if(gamepad2.dpad_left || (Math.abs(slideRot.getCurrentPosition()  - slideRot.getTargetPosition()) < 10)
+                || gamepad2.back) {
+            rotateMacro = RotateMacro.NONE;
+            slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setPower(0);
+        }
+
+        lastRotPosition = slideRot.getCurrentPosition();
+
+    }
+
+    private void handleExtendMacros(Gamepad gamepad2){
+        //up for up, down for down, right for horizontal, left for stop
+        //TODO: make these values based on the Arm config class
+
+
+        if (gamepad2.y) {
+            extendMacro = ExtendMacro.HANG;
+            slideExt.setTargetPosition(extMin + 1200);
+            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setPower(1);
+        }
+        if (gamepad2.a) {
+            extendMacro = ExtendMacro.MIN;
+            slideExt.setTargetPosition(extMin + 200);
+            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setPower(1);
+        }
+        if(gamepad2.x){
+            extendMacro = ExtendMacro.GRAB;
+            slideExt.setTargetPosition(extMin + 1000);
+            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideExt.setPower(0.8);
+        }
+
+        if(gamepad2.b || (Math.abs(slideExt.getCurrentPosition()  - slideExt.getTargetPosition()) < 10)
+                || gamepad2.back) {
+            extendMacro = ExtendMacro.NONE;
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideExt.setPower(0);
+        }
 
     }
 

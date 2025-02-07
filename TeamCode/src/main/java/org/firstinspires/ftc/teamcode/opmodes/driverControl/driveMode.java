@@ -36,10 +36,10 @@ public class driveMode extends LinearOpMode {
 
             telemetry.addLine("EXTENSION");
             telemetry.addData("ext macro", robot.viperSlide.extendMacro);
-            telemetry.addData("ext Power", robot.viperSlide.slideExt.getPower());
+            //telemetry.addData("ext Power", robot.viperSlide.slideExt.getPower());
             telemetry.addData("ext position", robot.viperSlide.slideExt.getCurrentPosition());
             telemetry.addData("ext target", robot.viperSlide.slideExt.getTargetPosition());
-            telemetry.addData("ext mode", robot.viperSlide.slideExt.getMode());
+            //telemetry.addData("ext mode", robot.viperSlide.slideExt.getMode());
             telemetry.addData("ext min", robot.viperSlide.extMin);
             telemetry.addData("ext max low", robot.viperSlide.extMaxLow);
             telemetry.addData("ext max high", robot.viperSlide.extMaxHigh);
