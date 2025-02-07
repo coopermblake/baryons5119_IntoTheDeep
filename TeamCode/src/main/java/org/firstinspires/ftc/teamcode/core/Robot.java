@@ -56,7 +56,7 @@ public class Robot {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
                 UsbFacingDirection.RIGHT)));
 
-        drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight);
+        drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, imu);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
 
     }
