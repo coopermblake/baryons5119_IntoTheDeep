@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.core;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 public class ViperSlide {
     public final DcMotor slideExt;
@@ -39,6 +39,10 @@ public class ViperSlide {
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         resetEncoder();
+    }
+
+    public void reverseExt(){
+        slideExt.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public void moveSlide(double inputRot, double inputExt) {
@@ -126,62 +130,93 @@ public class ViperSlide {
     }
 
     //lift arm up to hang
-    public class RotateUp implements Action{
+    public class RotateUp implements Action {
+        boolean initialized = false;
         @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            int error = slideRot.getCurrentPosition() - (rotMin-Arm.rot_hang);
-            double power = -0.1*(error);
-            power = Range.clip(power, -1, 1);
-            slideRot.setPower(power);
-            return Math.abs(error)>10;
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideRot.setTargetPosition(rotMin + Arm.rot_hang);
+                slideRot.setPower(1);
+                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
         }
     }
 
     //extend arm to hang
     public class ExtendToHang implements Action{
+        boolean initialized = false;
         @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            int error = slideExt.getCurrentPosition() - (extMin+Arm.ext_hang);
-            double power = -0.1*(error);
-            power = Range.clip(power, -1, 1);
-            slideExt.setPower(power);
-            return Math.abs(error)>10;
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ext_hang);
+                slideExt.setPower(0.8);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
         }
     }
 
     //lower arm to grabbing
     public class RotateHorizontal implements Action{
+        boolean initialized = false;
         @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            int error = slideRot.getCurrentPosition() - (rotMin-Arm.rot_hor);
-            double power = -0.1*(error);
-            power = Range.clip(power, -1, 1);
-            slideRot.setPower(power);
-            return Math.abs(error)>10;
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideRot.setTargetPosition(rotMin + Arm.rot_hor);
+                slideRot.setPower(1);
+                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
         }
     }
 
     //retract arm for Hang
     public class RetractToHang implements Action{
+        boolean initialized = false;
         @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            int error = slideExt.getCurrentPosition() - (extMin+Arm.ret_hang);
-            double power = -0.1*(error);
-            power = Range.clip(power, -1, 1);
-            slideExt.setPower(power);
-            return Math.abs(error)>10;
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ret_hang);
+                slideExt.setPower(0.8);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
         }
     }
 
     //extend arm for grabbing
     public class ExtendToGrab implements Action{
+        boolean initialized = false;
         @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            int error = slideExt.getCurrentPosition() - (extMin+Arm.ext_grab);
-            double power = -0.1*(error);
-            power = Range.clip(power, -1, 1);
-            slideExt.setPower(power);
-            return Math.abs(error)>10;
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ext_grab);
+                slideExt.setPower(0.8);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+        }
+    }
+
+    public class ExtendToHome implements Action{
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ext_home);
+                slideExt.setPower(0.8);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
         }
     }
 
@@ -222,10 +257,16 @@ public class ViperSlide {
     public Action closeGripper(){
         return new CloseGripper();
     }
+    public Action extendToHome(){
+        return new ExtendToHome();
+    }
+
+    @Config
     public static class Arm{
         public static int ext_hang = 1200;
         public static int ret_hang = 600;
-        public static int ext_grab = 400;
+        public static int ext_home = 400;
+        public static int ext_grab = 1000;
         public static int rot_hang = 2900;
         public static int rot_hor = 1000;
     }
