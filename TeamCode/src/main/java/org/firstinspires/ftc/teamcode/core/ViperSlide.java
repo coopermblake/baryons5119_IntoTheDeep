@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.lib.CustomPID;
 
 public class ViperSlide {
     public final DcMotor slideExt;
@@ -10,7 +13,8 @@ public class ViperSlide {
     private final Gamepad gamepad1;
     private final Gamepad gamepad2;
     private final Servo gripper;
-    private boolean debounce = false;
+    private boolean debounceGripper = false;
+    private boolean debounceY = false;
     private boolean gripperPosition = false;
     public boolean driverControl = false;
     public int rotMin;
@@ -33,6 +37,8 @@ public class ViperSlide {
 
     public RotateMacro rotateMacro = RotateMacro.NONE;
 
+    private boolean hanging = false;
+
     public enum ExtendMacro{
         NONE,
         MIN,
@@ -41,6 +47,15 @@ public class ViperSlide {
     }
 
     public ExtendMacro extendMacro = ExtendMacro.NONE;
+
+//    @Config
+//    public static class rotPID {
+//        public static double kP = 0.001;
+//        public static double kI = 0.0;
+//        public static double kD = 0.0;
+//    }
+
+    //private CustomPID rotationHoldPID = new CustomPID(rotPID.kP, rotPID.kI, rotPID.kD);
 
     public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
         this.slideExt = slideExt;
@@ -70,12 +85,21 @@ public class ViperSlide {
             slideRot.setTargetPosition(lastRotPosition);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             if(slideRot.getCurrentPosition() > lastRotPosition){
-                inputRot = 1.0; //only move if rot has dropped too low
+                //double power = rotationHoldPID.cycleController(lastRotPosition, slideExt.getCurrentPosition());
+                //inputRot = Range.clip(power, -1.0, 1.0); //only move if rot has dropped too low
+
+                slideRot.setTargetPosition(lastRotPosition);
+                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                inputRot = 1.0;
             }
        }
        else{
            slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
            lastRotPosition = slideRot.getCurrentPosition();
+       }
+
+       if(hanging && slideExt.getCurrentPosition() > (extMin + 50)){
+           inputExt = -1.0;
        }
 
         slideRot.setPower(-inputRot);
@@ -94,18 +118,18 @@ public class ViperSlide {
 
     private void handleGripper() {
         // we use debounce to make pressing the trigger only toggle the gripper once per press
-        if (gamepad2.right_trigger > 0.05 || gamepad1.left_trigger > 0.05) {
-            if (!debounce) {
+        if (gamepad2.right_trigger > 0.05) {
+            if (!debounceGripper) {
                 if (gripperPosition) {
                     gripper.setPosition(0.81);
                 } else {
                     gripper.setPosition(0.47);
                 }
                 gripperPosition = !gripperPosition;
-                debounce = true;
+                debounceGripper = true;
             }
         } else {
-            debounce = false;
+            debounceGripper = false;
         }
     }
 
@@ -124,6 +148,9 @@ public class ViperSlide {
                 resetEncoder();
             }
 
+            if(gamepad2.left_trigger>0.05){
+                hanging = true;
+            }
 
             //moveSlide(-gamepad2.right_stick_y, -gamepad2.left_stick_y);
             rotPower=-gamepad2.right_stick_y;
@@ -181,24 +208,39 @@ public class ViperSlide {
         //up for up, down for down, right for horizontal, left for stop
         //TODO: make these values based on the Arm config class
 
-
         if (gamepad2.y) {
-            extendMacro = ExtendMacro.HANG;
-            slideExt.setTargetPosition(extMin + 1200);
-            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideExt.setPower(1);
+            if(!debounceY) {
+                extendMacro = ExtendMacro.HANG;
+
+                if (slideExt.getCurrentPosition() < extMin + 1100) {
+                    slideExt.setTargetPosition(extMin + 1200);
+                } else {
+                    slideExt.setTargetPosition(extMin + 600);
+                }
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideExt.setPower(1);
+                debounceY = true;
+            }
+            else{
+                debounceY = false;
+            }
         }
         if (gamepad2.a) {
             extendMacro = ExtendMacro.MIN;
-            slideExt.setTargetPosition(extMin + 200);
+            slideExt.setTargetPosition(extMin + 400);
             slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideExt.setPower(1);
         }
-        if(gamepad2.x){
+        if(gamepad2.x || extendMacro == ExtendMacro.GRAB){
             extendMacro = ExtendMacro.GRAB;
-            slideExt.setTargetPosition(extMin + 1000);
-            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideExt.setPower(0.8);
+
+            //start extending when rotation reaches horizontal
+            if(Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 50){
+                slideExt.setTargetPosition(extMin + 1000);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideExt.setPower(0.8);
+            }
+
         }
 
         if(gamepad2.b || (Math.abs(slideExt.getCurrentPosition()  - slideExt.getTargetPosition()) < 10)
