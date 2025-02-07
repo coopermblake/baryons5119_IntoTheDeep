@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.core.Robot;
 public class driveMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, gamepad1, gamepad2);
-        double heading;
+        double headingRad;
 
         long lastCycleStart = System.currentTimeMillis();
         waitForStart();
@@ -17,22 +17,36 @@ public class driveMode extends LinearOpMode {
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
-            heading = robot.getYawRadians();
-            robot.drivetrain.driveRobot(gamepad1, gamepad2, heading);
+            headingRad = robot.getYawRadians();
+            robot.drivetrain.driveRobot(gamepad1, gamepad2, headingRad);
             robot.viperSlide.teleopSlideMovement(gamepad1, gamepad2);
-            telemetry.addData("Heading degrees:", robot.getYawDegrees());
-            telemetry.addData("current macro", robot.viperSlide.currentMacro);
+            
+            telemetry.addLine("DRIVING");
             telemetry.addData("field centric", robot.drivetrain.getFieldCentric());
-            telemetry.addData("ext", robot.viperSlide.slideExt.getCurrentPosition());
-            telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
-            telemetry.addData("rot", robot.viperSlide.slideRot.getCurrentPosition());
-            telemetry.addData("extMin", robot.viperSlide.extMin);
-            telemetry.addData("extMaxLow", robot.viperSlide.extMaxLow);
-            telemetry.addData("extMaxHigh", robot.viperSlide.extMaxHigh);
-            telemetry.addData("rotMin", robot.viperSlide.rotMin);
-            telemetry.addData("rotMax", robot.viperSlide.rotMax);
+            telemetry.addData("Heading degrees:", robot.getYawDegrees());
+            
+            telemetry.addLine("ROTATION");
+            telemetry.addData("rot macro", robot.viperSlide.rotateMacro);
+            //telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
+            telemetry.addData("rot position", robot.viperSlide.slideRot.getCurrentPosition());
+            telemetry.addData("rot target", robot.viperSlide.slideRot.getTargetPosition());
+            //telemetry.addData("rot mode", robot.viperSlide.slideRot.getMode());
+            //telemetry.addData("rot min", robot.viperSlide.rotMin);
+            //telemetry.addData("rot max", robot.viperSlide.rotMax);
+
+            telemetry.addLine("EXTENSION");
+            telemetry.addData("ext macro", robot.viperSlide.extendMacro);
+            //telemetry.addData("ext Power", robot.viperSlide.slideExt.getPower());
+            telemetry.addData("ext position", robot.viperSlide.slideExt.getCurrentPosition());
+            telemetry.addData("ext target", robot.viperSlide.slideExt.getTargetPosition());
+            //telemetry.addData("ext mode", robot.viperSlide.slideExt.getMode());
+            telemetry.addData("ext min", robot.viperSlide.extMin);
+            telemetry.addData("ext max low", robot.viperSlide.extMaxLow);
+            telemetry.addData("ext max high", robot.viperSlide.extMaxHigh);
+
+            telemetry.addLine("GRIPPER");
             telemetry.addData( "gripper", robot.gripper.getPosition());
-            telemetry.addData("rightTrigger", gamepad2.right_trigger);
+
             telemetry.update();
         }
     }
