@@ -9,7 +9,7 @@ public class Drivetrain {
     private final DcMotor backRight;
     private final DcMotor frontLeft;
     private final DcMotor frontRight;
-    private boolean fieldCentric = false;
+    private boolean fieldCentric = true;
     private boolean debounce = false;
     public Drivetrain(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight) {
         this.backLeft = backLeft;
