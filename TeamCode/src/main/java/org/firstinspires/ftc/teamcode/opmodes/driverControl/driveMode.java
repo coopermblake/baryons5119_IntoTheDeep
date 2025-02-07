@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.core.Robot;
 public class driveMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, gamepad1, gamepad2);
-        double headingRad;
 
         long lastCycleStart = System.currentTimeMillis();
         waitForStart();
@@ -17,7 +16,7 @@ public class driveMode extends LinearOpMode {
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
-            headingRad = robot.getYawRadians();
+            double headingRad = robot.getYawRadians();
             robot.drivetrain.driveRobot(gamepad1, gamepad2, headingRad);
             robot.viperSlide.teleopSlideMovement(gamepad1, gamepad2);
             
@@ -27,7 +26,7 @@ public class driveMode extends LinearOpMode {
             
             telemetry.addLine("ROTATION");
             telemetry.addData("rot macro", robot.viperSlide.rotateMacro);
-            //telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
+            telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
             telemetry.addData("rot position", robot.viperSlide.slideRot.getCurrentPosition());
             telemetry.addData("rot target", robot.viperSlide.slideRot.getTargetPosition());
             //telemetry.addData("rot mode", robot.viperSlide.slideRot.getMode());
