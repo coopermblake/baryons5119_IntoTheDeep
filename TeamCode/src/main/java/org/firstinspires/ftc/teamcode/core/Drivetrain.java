@@ -17,18 +17,20 @@ public class Drivetrain {
     private boolean fieldCentric = true;
     private boolean debounce = false;
 
+    public double power;
+
     private IMU imu;
 
     @Config
     public static class turnMacroPIDVals {
-        public static double kP = 0.000001;
+        public static double kP = 0.005;
         public static double kI = 0.0;
         public static double kD = 0.0;
     }
 
 
     //TODO: make final
-    private CustomPID turnMacroPID = new CustomPID(turnMacroPIDVals.kP, turnMacroPIDVals.kI, turnMacroPIDVals.kD);
+    public CustomPID turnMacroPID = new CustomPID(turnMacroPIDVals.kP, turnMacroPIDVals.kI, turnMacroPIDVals.kD);
 
     private enum TurnMacro {
         NONE,
@@ -134,8 +136,9 @@ public class Drivetrain {
             heading = Math.toDegrees(heading);
             targetHeading = 0.0;
 
-            double power = turnMacroPID.cycleController(targetHeading, heading);
+            power = turnMacroPID.cycleController(targetHeading, heading);
             power = Range.clip(power, -1.0, 1);
+            power = power * -1;
 
             frontLeft.setPower(power);
             backLeft.setPower(power);
@@ -145,10 +148,13 @@ public class Drivetrain {
         }
         if(gamepad1.dpad_down || turnMacro == TurnMacro.TURN_TO_BREN){
             turnMacro = TurnMacro.TURN_TO_BREN;
-            targetHeading = 180 * heading / Math.abs(heading); //copy sign of current heading to target heading
+            heading = Math.toDegrees(heading);
+            int sign_mult = (int) (heading/Math.abs(heading));
+            targetHeading = 180; //copy sign of current heading to target heading
 
-            double power = turnMacroPID.cycleController(targetHeading, heading);
+            power = turnMacroPID.cycleController(targetHeading, Math.abs(heading));
             power = Range.clip(power, -1.0, 1);
+            power = power * -1 * sign_mult;
 
             frontLeft.setPower(power);
             backLeft.setPower(power);

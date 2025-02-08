@@ -23,6 +23,10 @@ public class driveMode extends LinearOpMode {
             telemetry.addLine("DRIVING");
             telemetry.addData("field centric", robot.drivetrain.getFieldCentric());
             telemetry.addData("Heading degrees:", robot.getYawDegrees());
+            telemetry.addData("Drive macro", robot.drivetrain.turnMacro);
+            telemetry.addData("pERR", robot.drivetrain.turnMacroPID.pErr);
+            telemetry.addData("Motor Powers FL:BL:FR:BL", "%.2f:%.2f:%.2f:%.2f",
+                    robot.frontLeft.getPower(), robot.backLeft.getPower(), robot.frontRight.getPower(), robot.backRight.getPower());
             
             telemetry.addLine("ROTATION");
             telemetry.addData("rot macro", robot.viperSlide.rotateMacro);

@@ -21,7 +21,7 @@ public class ViperSlide {
     private final Gamepad gamepad2;
     private final Servo gripper;
     private boolean debounceGripper = false;
-    private boolean debounceY = false;
+    private boolean lastY = false;
     private boolean gripperPosition = false;
     public boolean driverControl = false;
     public int rotMin;
@@ -68,7 +68,7 @@ public class ViperSlide {
 
 
     //TODO: make final
-    private CustomPID rotationHoldPID = new CustomPID(rotPID.kP, rotPID.kI, rotPID.kD);
+    public CustomPID rotationHoldPID = new CustomPID(rotPID.kP, rotPID.kI, rotPID.kD);
 
     public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
         this.slideExt = slideExt;
@@ -222,22 +222,21 @@ public class ViperSlide {
         //TODO: make these values based on the Arm config class
 
         if (gamepad2.y) {
-            if(!debounceY) {
+            if(!lastY) {
                 extendMacro = ExtendMacro.HANG;
 
                 if (slideExt.getCurrentPosition() < extMin + Arm.ext_hang - 100) {
                     slideExt.setTargetPosition(extMin + Arm.ext_hang);
-                } else {
+                }
+                else {
                     slideExt.setTargetPosition(extMin + Arm.ret_hang);
                 }
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideExt.setPower(1);
-                debounceY = true;
-            }
-            else{
-                debounceY = false;
             }
         }
+        lastY = gamepad2.y;
+
         if (gamepad2.a) {
             extendMacro = ExtendMacro.MIN;
             slideExt.setTargetPosition(extMin + Arm.ext_home);
@@ -272,6 +271,20 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideRot.setTargetPosition(rotMin + Arm.rot_hang);
+                slideRot.setPower(1);
+                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+        }
+    }
+
+    public class RotateLock implements Action {
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet){
+            if(!initialized){
+                slideRot.setTargetPosition(rotMin + Arm.rot_lock);
                 slideRot.setPower(1);
                 slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
@@ -396,14 +409,16 @@ public class ViperSlide {
     public Action extendToHome(){
         return new ExtendToHome();
     }
+    public Action rotateLock(){ return new RotateLock();}
 
     @Config
     public static class Arm{
-        public static int ext_hang = 1200;
+        public static int ext_hang = 1500;
         public static int ret_hang = 600;
         public static int ext_home = 400;
-        public static int ext_grab = 1000;
-        public static int rot_hang = 2900;
+        public static int ext_grab = 1200;
+        public static int rot_hang = 2700;
+        public static int rot_lock = 2100;
         public static int rot_hor = 1000;
         public static int rot_home = 400;
     }
