@@ -324,6 +324,20 @@ public class ViperSlide {
         }
     }
 
+    public class RotateToDrag implements Action{
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideRot.setTargetPosition(rotMin + Arm.rot_drag);
+                slideRot.setPower(1);
+                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+        }
+    }
+
     //retract arm for Hang
     public class RetractToHang implements Action{
         boolean initialized = false;
@@ -369,6 +383,20 @@ public class ViperSlide {
         }
     }
 
+    public class ExtendToDrag implements Action{
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ext_drag);
+                slideExt.setPower(0.8);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+        }
+    }
+
     public class CloseGripper implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
@@ -391,6 +419,9 @@ public class ViperSlide {
     public Action rotateHorizontal(){
         return new RotateHorizontal();
     }
+    public Action rotateToDrag(){
+        return new RotateToDrag();
+    }
     public Action extendToHang(){
         return new ExtendToHang();
     }
@@ -399,6 +430,9 @@ public class ViperSlide {
     }
     public Action extendToGrab(){
         return new ExtendToGrab();
+    }
+    public Action extendToDrag(){
+        return new ExtendToDrag();
     }
     public Action openGripper(){
         return new OpenGripper();
@@ -416,11 +450,13 @@ public class ViperSlide {
         public static int ext_hang = 1500;
         public static int ret_hang = 600;
         public static int ext_home = 400;
-        public static int ext_grab = 1200;
+        public static int ext_grab = 1500;
         public static int rot_hang = 2700;
         public static int rot_lock = 2100;
         public static int rot_hor = 1000;
         public static int rot_home = 400;
+        public static int rot_drag = 550;
+        public static int ext_drag = 3579;
     }
 
 }

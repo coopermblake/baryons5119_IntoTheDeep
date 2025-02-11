@@ -35,8 +35,8 @@ public class RR_Auto extends LinearOpMode {
     @Config
     public static class Acons {//Auto Constants
         public static double grabPreDelay = 1;
-        public static double grabPostDelay = 1;
-        public static double grabRaiseMoveDelay = 1;
+        public static double grabPostDelay = 0.5;
+        public static double grabRaiseMoveDelay = 0.5;
 
         //start
         public static double _0_x = 8;
@@ -60,7 +60,7 @@ public class RR_Auto extends LinearOpMode {
 
 
         //drive behind sample
-        public static double _4_x = 44;
+        public static double _4_x = 52;
         public static double _4_y = 0;
         public static double _4_t = 90;
 
@@ -85,18 +85,24 @@ public class RR_Auto extends LinearOpMode {
         public static double _8_et = 0;
 
         //back at OZ
-        public static double _9_x = _4_x;
-        public static double _9_y = _6_y;
+        public static double _9_x = 48;
+        public static double _9_y = -48;
         public static double _9_h = 270;
         public static double _9_st = 0;
         public static double _9_et = 270;
 
         //driving to hang spec 3
-//        public static double _9_x = 0;
-//        public static double _9_y = -31;
-//        public static double _9_h = 90;
-//        public static double _9_st = 180;
-//        public static double _9_et = 90;
+        public static double _10_x = 0;
+        public static double _10_y = -31;
+        public static double _10_h = 90;
+        public static double _10_st = 150;
+        public static double _10_et = 90;
+
+        //park
+        public static double _11_x = 56;
+        public static double _11_y = -60;
+        public static double _11_st = -60;
+        public static double _11_et = 270;
 
     }
     public void runOpMode(){
@@ -173,8 +179,10 @@ public class RR_Auto extends LinearOpMode {
                                     )
                             ),
 
-                            viperSlide.retractToHang(),
-                            viperSlide.rotateLock(),
+                            new ParallelAction(
+                                    viperSlide.retractToHang(),
+                                    viperSlide.rotateLock()
+                            ),
                             viperSlide.openGripper(),
                             new SleepAction(Acons.grabRaiseMoveDelay),
 
@@ -205,9 +213,13 @@ public class RR_Auto extends LinearOpMode {
                                     )
                             ),
 
-                            viperSlide.retractToHang(),
-                            viperSlide.rotateLock(),
-                            viperSlide.openGripper()
+                            new ParallelAction(
+                                    viperSlide.retractToHang(),
+                                    viperSlide.rotateLock()
+                            ),
+                            viperSlide.openGripper(),
+                            new SleepAction(Acons.grabRaiseMoveDelay),
+                            park(mecanumDrive).build()
 
                 )
 
@@ -221,12 +233,12 @@ public class RR_Auto extends LinearOpMode {
 
     }
 
-//    private TrajectoryActionBuilder OZToBar2(MecanumDrive mecanumDrive) {
-//        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
-//                .setTangent(Math.toRadians(Acons._9_st))
-//                .splineToLinearHeading(new Pose2d(Acons._9_x, Acons._9_y, Math.toRadians(Acons._9_h)), Math.toRadians(Acons._9_et));
-//        return tab;
-//    }
+    private TrajectoryActionBuilder OZToBar2(MecanumDrive mecanumDrive) {
+        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
+                .setTangent(Math.toRadians(Acons._10_st))
+                .splineToLinearHeading(new Pose2d(Acons._10_x, Acons._10_y, Math.toRadians(Acons._10_h)), Math.toRadians(Acons._10_et));
+        return tab;
+    }
 
     private TrajectoryActionBuilder OZToBar1(MecanumDrive mecanumDrive){
         TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
@@ -251,6 +263,13 @@ public class RR_Auto extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(Acons._4_x, Acons._4_y), Math.toRadians(Acons._4_t))
                 .turnTo(Math.toRadians(Acons._5_h))
                 .lineToY(Acons._6_y);
+        return tab;
+    }
+
+    private TrajectoryActionBuilder park(MecanumDrive mecanumDrive){
+        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
+                .setTangent(Acons._11_st)
+                .splineToConstantHeading(new Vector2d(Acons._11_x, Acons._11_y), Acons._11_et);
         return tab;
     }
 
