@@ -300,7 +300,7 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideExt.setTargetPosition(extMin + Arm.ext_hang);
-                slideExt.setPower(0.8);
+                slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
 
@@ -345,7 +345,7 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideExt.setTargetPosition(extMin + Arm.ret_hang);
-                slideExt.setPower(0.8);
+                slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
 
@@ -361,7 +361,7 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideExt.setTargetPosition(extMin + Arm.ext_grab);
-                slideExt.setPower(0.8);
+                slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
             }
@@ -375,7 +375,7 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideExt.setTargetPosition(extMin + Arm.ext_home);
-                slideExt.setPower(0.8);
+                slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
             }
@@ -389,7 +389,7 @@ public class ViperSlide {
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
                 slideExt.setTargetPosition(extMin + Arm.ext_drag);
-                slideExt.setPower(0.8);
+                slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
             }
