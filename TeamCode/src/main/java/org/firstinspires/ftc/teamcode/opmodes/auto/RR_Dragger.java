@@ -96,13 +96,13 @@ public class RR_Dragger extends LinearOpMode {
     @Config
     public static class hanging2{
         public static double x = 0;
-        public static double y = -31;
+        public static double y = -35;
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
         public static double vel = 70;
         public static double maxAcc = 50;
-        public static double minAcc = -30;
+        public static double minAcc = -35;
     }
 
     @Config
@@ -120,7 +120,7 @@ public class RR_Dragger extends LinearOpMode {
     @Config
     public static class hanging3 {
         public static double x = 0;
-        public static double y = -44;
+        public static double y = -42;
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
@@ -144,7 +144,7 @@ public class RR_Dragger extends LinearOpMode {
     @Config
     public static class hanging4 {
         public static double x = 0;
-        public static double y = -44;
+        public static double y = -42;
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
