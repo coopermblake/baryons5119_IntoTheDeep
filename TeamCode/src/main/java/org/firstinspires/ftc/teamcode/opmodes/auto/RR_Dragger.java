@@ -132,7 +132,7 @@ public class RR_Dragger extends LinearOpMode {
     @Config
     public static class grabbing4{
         public static int x = 38;
-        public static int y = -58;
+        public static int y = -62;
         public static int h = 270;
         public static int st = -60;
         public static int et = 270;
