@@ -32,6 +32,9 @@ public class RR_Auto extends LinearOpMode {
     6. push sample
      */
 
+
+
+    //FINAL THREE SPEC AND PARK     AUTO
     @Config
     public static class Acons {//Auto Constants
         public static double grabPreDelay = 1;
@@ -47,20 +50,20 @@ public class RR_Auto extends LinearOpMode {
         public static double _1_y = -33;
 
         //drive behind sub
-        public static double _2_x= 28;
+        public static double _2_x= 44;
         public static double _2_y = -36;
         public static double _2_et = 0;
         public static double _2_st = 270;
         public static double _2_arm_wait = 1;
 
         //drive next to sample
-        public static double _3_x = 36;
+        public static double _3_x = 46;
         public static double _3_y = -24;
         public static double _3_t = 90;
 
 
         //drive behind sample
-        public static double _4_x = 52;
+        public static double _4_x = 58;
         public static double _4_y = 0;
         public static double _4_t = 90;
 
@@ -68,11 +71,11 @@ public class RR_Auto extends LinearOpMode {
         public static double _5_h = -90;
 
         //drive to OZ
-        public static double _6_y = -53;
+        public static double _6_y = -46;
 
         //driving to hang spec 2
         public static double _7_x = 0;
-        public static double _7_y = -31;
+        public static double _7_y = -29;
         public static double _7_h = 90;
         public static double _7_st = 60;
         public static double _7_et = 90;
@@ -85,15 +88,15 @@ public class RR_Auto extends LinearOpMode {
         public static double _8_et = 0;
 
         //back at OZ
-        public static double _9_x = 48;
-        public static double _9_y = -48;
+        public static double _9_x = 52;
+        public static double _9_y = -44;
         public static double _9_h = 270;
         public static double _9_st = 0;
         public static double _9_et = 270;
 
         //driving to hang spec 3
         public static double _10_x = 0;
-        public static double _10_y = -31;
+        public static double _10_y = -29;
         public static double _10_h = 90;
         public static double _10_st = 150;
         public static double _10_et = 90;
@@ -101,8 +104,8 @@ public class RR_Auto extends LinearOpMode {
         //park
         public static double _11_x = 56;
         public static double _11_y = -60;
-        public static double _11_st = -60;
-        public static double _11_et = 270;
+        public static double _11_st = -45;
+        public static double _11_et = -45;
 
     }
     public void runOpMode(){
@@ -162,7 +165,7 @@ public class RR_Auto extends LinearOpMode {
                             ),
 
                             new SleepAction(Acons.grabPreDelay),
-                            viperSlide.extendToGrab(),
+                            viperSlide.slowExtendToGrab(),
                             viperSlide.closeGripper(),
                             new SleepAction(Acons.grabPostDelay),
 
@@ -196,7 +199,7 @@ public class RR_Auto extends LinearOpMode {
                             ),
 
                             new SleepAction(Acons.grabPreDelay),
-                            viperSlide.extendToGrab(),
+                            viperSlide.slowExtendToGrab(),
                             viperSlide.closeGripper(),
                             new SleepAction(Acons.grabPostDelay),
 
@@ -219,7 +222,12 @@ public class RR_Auto extends LinearOpMode {
                             ),
                             viperSlide.openGripper(),
                             new SleepAction(Acons.grabRaiseMoveDelay),
-                            park(mecanumDrive).build()
+                            new ParallelAction(
+                                    viperSlide.rotateHorizontal(),
+                                    viperSlide.extendToHome(),
+                                    park(mecanumDrive).build()
+                            )
+
 
                 )
 
@@ -268,8 +276,8 @@ public class RR_Auto extends LinearOpMode {
 
     private TrajectoryActionBuilder park(MecanumDrive mecanumDrive){
         TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
-                .setTangent(Acons._11_st)
-                .splineToConstantHeading(new Vector2d(Acons._11_x, Acons._11_y), Acons._11_et);
+                .setTangent(Math.toRadians(Acons._11_st))
+                .splineToConstantHeading(new Vector2d(Acons._11_x, Acons._11_y), Math.toRadians(Acons._11_et));
         return tab;
     }
 

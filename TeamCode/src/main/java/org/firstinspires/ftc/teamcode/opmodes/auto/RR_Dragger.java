@@ -30,6 +30,9 @@ import org.firstinspires.ftc.teamcode.core.ViperSlide;
 @Autonomous(name = "RR dragging auto")
 public class RR_Dragger extends LinearOpMode {
 
+
+
+    //FOUR SPEC AUTO UNTESTED ON FIELD
     @Config
     public static class delays{
         public static double grabPreDelay = 0;
@@ -59,10 +62,10 @@ public class RR_Dragger extends LinearOpMode {
     public static class dragging1{
         public static double Ast = 270;
         public static double Aet = 0;
-        public static double Ax = 26;
-        public static double Ay = -38;
+        public static double Ax = 27;
+        public static double Ay = -47;
         public static double Ah = 45;
-        public static double Bh = -60;
+        public static double Bh = -50;
         public static double B_vel = Math.PI/2;
         public static double BminAcc = -Math.PI/2;
         public static double BmaxAcc = Math.PI/2;
@@ -72,8 +75,8 @@ public class RR_Dragger extends LinearOpMode {
     public static class dragging2{
         public static double Ast = 0;
         public static double Aet = 0;
-        public static double Ax = dragging1.Ax+10;
-        public static double Ay = dragging1.Ay;
+        public static double Ax = 37;
+        public static double Ay = -43;
         public static double Ah = dragging1.Ah;
         public static double Bh = dragging1.Bh;
         public static double B_vel = Math.PI/2;
@@ -100,15 +103,15 @@ public class RR_Dragger extends LinearOpMode {
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
-        public static double vel = 70;
-        public static double maxAcc = 50;
-        public static double minAcc = -35;
+        public static double vel = 80;
+        public static double maxAcc = 80;
+        public static double minAcc = -40;
     }
 
     @Config
     public static class grabbing3{
-        public static int x = 38;
-        public static int y = -59;
+        public static int x = 41;
+        public static int y = -61;
         public static int h = 270;
         public static int st = 270;
         public static int et = 0;
@@ -120,7 +123,7 @@ public class RR_Dragger extends LinearOpMode {
     @Config
     public static class hanging3 {
         public static double x = 0;
-        public static double y = -42;
+        public static double y = -39;
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
@@ -131,8 +134,8 @@ public class RR_Dragger extends LinearOpMode {
 
     @Config
     public static class grabbing4{
-        public static int x = 38;
-        public static int y = -62;
+        public static int x = 50;
+        public static int y = -55;
         public static int h = 270;
         public static int st = -60;
         public static int et = 270;
@@ -148,9 +151,9 @@ public class RR_Dragger extends LinearOpMode {
         public static double h = 90;
         public static double st = 180;
         public static double et = 90;
-        public static double vel = 80;
-        public static double maxAcc = 80;
-        public static double minAcc = -40;
+        public static double vel = 120;
+        public static double maxAcc = 120;
+        public static double minAcc = -60;
     }
 
     public void runOpMode() {
@@ -205,9 +208,13 @@ public class RR_Dragger extends LinearOpMode {
                 dragTurn1(mecanumDrive).build(),
                 new ParallelAction(
                         viperSlide.rotateHorizontal(),
+                        viperSlide.retractToDrag(),
                         drag2(mecanumDrive).build()
                 ),
-                viperSlide.rotateToDrag(),
+                new ParallelAction(
+                        viperSlide.rotateToDrag(),
+                        viperSlide.extendToDrag()
+                ),
                 dragTurn2(mecanumDrive).build(),
                 new ParallelAction(
                         viperSlide.rotateHorizontal(),

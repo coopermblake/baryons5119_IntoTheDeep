@@ -369,6 +369,24 @@ public class ViperSlide {
         }
     }
 
+    public class SlowExtendToGrab implements Action{
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                slideExt.setTargetPosition(extMin + Arm.ext_grab);
+                slideExt.setPower(Arm.slow_ext_speed);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                initialized = true;
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+        }
+    }
+
+
+
+
+
     public class ExtendToHome implements Action{
         boolean initialized = false;
         @Override
@@ -392,6 +410,19 @@ public class ViperSlide {
                 slideExt.setPower(1);
                 slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 initialized = true;
+            }
+            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+        }
+    }
+
+    public class RetractToDrag implements Action {
+        boolean initialized = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if(!initialized){
+                slideExt.setTargetPosition(extMin + Arm.drag_retract);
+                slideExt.setPower(1);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
         }
@@ -444,7 +475,8 @@ public class ViperSlide {
         return new ExtendToHome();
     }
     public Action rotateLock(){ return new RotateLock();}
-
+    public Action slowExtendToGrab(){return new SlowExtendToGrab();}
+    public Action retractToDrag(){return new RetractToDrag();}
     @Config
     public static class Arm{
         public static int ext_hang = 1500;
@@ -452,11 +484,13 @@ public class ViperSlide {
         public static int ext_home = 400;
         public static int ext_grab = 1500;
         public static int rot_hang = 2700;
-        public static int rot_lock = 2100;
-        public static int rot_hor = 1000;
+        public static int rot_lock = 2500;
+        public static int rot_hor = 1160;
         public static int rot_home = 400;
-        public static int rot_drag = 550;
-        public static int ext_drag = 3579;
+        public static int rot_drag = 480;
+        public static int ext_drag = 3779;
+        public static double slow_ext_speed = 0.5;
+        public static int drag_retract = 3000;
     }
 
 }
