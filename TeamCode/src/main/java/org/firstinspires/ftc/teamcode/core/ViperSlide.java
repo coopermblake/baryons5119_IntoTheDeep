@@ -190,24 +190,24 @@ public class ViperSlide {
 
         if (gamepad2.dpad_up) {
             rotateMacro = RotateMacro.GOING_UP;
-            slideRot.setTargetPosition(rotMin - Arm.rot_hang);
+            slideRot.setTargetPosition(rotMin - Arm.tele_rot_hang);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
         }
-        if (gamepad2.dpad_down) {
-            rotateMacro = RotateMacro.GOING_DOWN;
-            slideRot.setTargetPosition(rotMin-Arm.rot_home);
-            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideRot.setPower(1);
-        }
-        if(gamepad2.dpad_right){
+//        if (gamepad2.dpad_down) {
+//            rotateMacro = RotateMacro.GOING_DOWN;
+//            slideRot.setTargetPosition(rotMin-Arm.tele_rot_sub);
+//            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            slideRot.setPower(1);
+//        }
+        if(gamepad2.dpad_down){
             rotateMacro = RotateMacro.GOING_HORIZONTAL;
-            slideRot.setTargetPosition(rotMin-Arm.rot_hor);
+            slideRot.setTargetPosition(rotMin-Arm.tele_rot_hor);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
         }
 
-        if(gamepad2.dpad_left || (Math.abs(slideRot.getCurrentPosition()  - slideRot.getTargetPosition()) < 10)
+        if(gamepad2.dpad_left || gamepad2.dpad_right || (Math.abs(slideRot.getCurrentPosition()  - slideRot.getTargetPosition()) < 10)
                 || gamepad2.back) {
             rotateMacro = RotateMacro.NONE;
             slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -237,13 +237,13 @@ public class ViperSlide {
         }
         lastY = gamepad2.y;
 
-        if (gamepad2.a) {
-            extendMacro = ExtendMacro.MIN;
-            slideExt.setTargetPosition(extMin + Arm.ext_home);
-            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideExt.setPower(1);
-        }
-        if(gamepad2.x || extendMacro == ExtendMacro.GRAB){
+//        if (gamepad2.a) {
+//            extendMacro = ExtendMacro.MIN;
+//            slideExt.setTargetPosition(extMin + Arm.ext_home);
+//            slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            slideExt.setPower(1);
+//        }
+        if(gamepad2.a || extendMacro == ExtendMacro.GRAB){
             extendMacro = ExtendMacro.GRAB;
 
             //start extending when rotation reaches horizontal
@@ -487,6 +487,9 @@ public class ViperSlide {
         public static int rot_lock = 2500;
         public static int rot_hor = 1160;
         public static int rot_home = 400;
+        public static int tele_rot_sub = 200;
+        public static int tele_rot_hor = 1000;
+        public static int tele_rot_hang = 2500;
         public static int rot_drag = 480;
         public static int ext_drag = 3779;
         public static double slow_ext_speed = 0.5;
