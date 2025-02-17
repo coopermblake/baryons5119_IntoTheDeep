@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -37,8 +39,8 @@ public class RR_Auto extends LinearOpMode {
     //FINAL THREE SPEC AND PARK     AUTO
     @Config
     public static class Acons {//Auto Constants
-        public static double grabPreDelay = 1;
-        public static double grabPostDelay = 0.5;
+        public static double grabPreDelay = 0.9;
+        public static double grabPostDelay = 0.6;
         public static double grabRaiseMoveDelay = 0.5;
 
         //start
@@ -74,7 +76,7 @@ public class RR_Auto extends LinearOpMode {
         public static double _6_y = -46;
 
         //driving to hang spec 2
-        public static double _7_x = 0;
+        public static double _7_x = 4;
         public static double _7_y = -29;
         public static double _7_h = 90;
         public static double _7_st = 60;
@@ -95,8 +97,8 @@ public class RR_Auto extends LinearOpMode {
         public static double _9_et = 270;
 
         //driving to hang spec 3
-        public static double _10_x = 0;
-        public static double _10_y = -29;
+        public static double _10_x = 4;
+        public static double _10_y = -21;
         public static double _10_h = 90;
         public static double _10_st = 150;
         public static double _10_et = 90;
@@ -106,6 +108,9 @@ public class RR_Auto extends LinearOpMode {
         public static double _11_y = -60;
         public static double _11_st = -45;
         public static double _11_et = -45;
+        public static double _11_vel = 80;
+        public static double _11_min_acc = -40;
+        public static double _11_max_acc = 80;
 
     }
     public void runOpMode(){
@@ -220,15 +225,18 @@ public class RR_Auto extends LinearOpMode {
                                     viperSlide.retractToHang(),
                                     viperSlide.rotateLock()
                             ),
-                            viperSlide.openGripper(),
-                            new SleepAction(Acons.grabRaiseMoveDelay),
                             new ParallelAction(
-                                    viperSlide.rotateHorizontal(),
+                                    viperSlide.openGripper(),
                                     viperSlide.extendToHome(),
-                                    park(mecanumDrive).build()
+                                    new SequentialAction(
+                                            new SleepAction(Acons.grabRaiseMoveDelay),
+                                            viperSlide.rotateHorizontal()
+                                    ),
+                                    new SequentialAction(
+                                            new SleepAction(Acons.grabRaiseMoveDelay),
+                                            park(mecanumDrive).build()
+                                    )
                             )
-
-
                 )
 
         );
@@ -275,9 +283,11 @@ public class RR_Auto extends LinearOpMode {
     }
 
     private TrajectoryActionBuilder park(MecanumDrive mecanumDrive){
-        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(mecanumDrive.localizer.getPose())
+        TrajectoryActionBuilder tab = mecanumDrive.actionBuilder(new Pose2d(Acons._7_x, Acons._7_y, Math.toRadians(Acons._7_h)))
                 .setTangent(Math.toRadians(Acons._11_st))
-                .splineToConstantHeading(new Vector2d(Acons._11_x, Acons._11_y), Math.toRadians(Acons._11_et));
+                .splineToConstantHeading(new Vector2d(Acons._11_x, Acons._11_y), Math.toRadians(Acons._11_et),
+                        new TranslationalVelConstraint(Acons._11_vel),
+                        new ProfileAccelConstraint(Acons._11_min_acc, Acons._11_max_acc));
         return tab;
     }
 

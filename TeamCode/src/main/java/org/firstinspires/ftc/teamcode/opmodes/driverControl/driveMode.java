@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.driverControl;
 
+import static org.firstinspires.ftc.teamcode.core.ViperSlide.Arm;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,6 +15,7 @@ public class driveMode extends LinearOpMode {
         long lastCycleStart = System.currentTimeMillis();
         waitForStart();
         robot.viperSlide.driverControl = true;
+        robot.viperSlide.teleReset();
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
@@ -33,9 +36,11 @@ public class driveMode extends LinearOpMode {
             telemetry.addData("rot Power", robot.viperSlide.slideRot.getPower());
             telemetry.addData("rot position", robot.viperSlide.slideRot.getCurrentPosition());
             telemetry.addData("rot target", robot.viperSlide.slideRot.getTargetPosition());
-            //telemetry.addData("rot mode", robot.viperSlide.slideRot.getMode());
-            //telemetry.addData("rot min", robot.viperSlide.rotMin);
-            //telemetry.addData("rot max", robot.viperSlide.rotMax);
+            telemetry.addData("rot mode", robot.viperSlide.slideRot.getMode());
+            telemetry.addData("rot min", robot.viperSlide.rotMin);
+            telemetry.addData("rot hor", Arm.rot_hor);
+            telemetry.addData("rot hang", Arm.tele_rot_hang);
+            telemetry.addData("rot max", robot.viperSlide.rotMax);
 
             telemetry.addLine("EXTENSION");
             telemetry.addData("ext macro", robot.viperSlide.extendMacro);
