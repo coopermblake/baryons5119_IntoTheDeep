@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Vector;
-
 @Autonomous(name = "RR Auto", group = "Autonomous")
 public class RR_Auto extends LinearOpMode {
 
@@ -33,7 +32,6 @@ public class RR_Auto extends LinearOpMode {
     5. curve around sample
     6. push sample
      */
-
 
 
     //FINAL THREE SPEC AND PARK     AUTO
@@ -122,13 +120,10 @@ public class RR_Auto extends LinearOpMode {
                                                hardwareMap.get(DcMotor.class, "slideRot"),
                                                 gamepad1, gamepad2,
                                                 hardwareMap.get(Servo.class, "gripper"));
-
-
         TrajectoryActionBuilder startToBar = mecanumDrive.actionBuilder(initialPose)
                 .waitSeconds(0.5)
                 .setTangent(Math.toRadians(90))
                 .lineToY(Acons._1_y);
-
 
         //opMode starts here
 
@@ -149,13 +144,11 @@ public class RR_Auto extends LinearOpMode {
         Actions.runBlocking(
                     new SequentialAction(
                             //raise arm and drive to bar
-
                             new ParallelAction(
                                     viperSlide.extendToHang(),
                                     viperSlide.rotateUp(),
                                     startToBar.build()
                             ),
-
                             viperSlide.retractToHang(),
                             viperSlide.openGripper(),
 
@@ -168,7 +161,6 @@ public class RR_Auto extends LinearOpMode {
                                     )
 
                             ),
-
                             new SleepAction(Acons.grabPreDelay),
                             viperSlide.slowExtendToGrab(),
                             viperSlide.closeGripper(),
@@ -207,7 +199,6 @@ public class RR_Auto extends LinearOpMode {
                             viperSlide.slowExtendToGrab(),
                             viperSlide.closeGripper(),
                             new SleepAction(Acons.grabPostDelay),
-
                             new ParallelAction(
                                     viperSlide.rotateUp(),
                                     new SequentialAction(
@@ -290,8 +281,4 @@ public class RR_Auto extends LinearOpMode {
                         new ProfileAccelConstraint(Acons._11_min_acc, Acons._11_max_acc));
         return tab;
     }
-
-
-
-
 }

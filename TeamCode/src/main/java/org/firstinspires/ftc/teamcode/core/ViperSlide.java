@@ -444,7 +444,6 @@ public class ViperSlide {
             return false;
         }
     }
-
     public class OpenGripper implements Action{
         @Override
         public boolean run(@NonNull TelemetryPacket packet){

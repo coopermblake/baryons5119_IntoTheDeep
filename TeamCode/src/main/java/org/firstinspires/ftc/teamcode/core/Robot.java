@@ -29,7 +29,8 @@ public class Robot {
     public DcMotor slideRot;
 
     public Servo gripper;
-    public IMU imu;
+    public IMU autoIMU;
+    public IMU teleOpIMU;
 
     public Gamepad gamepad1;
     public Gamepad gamepad2;
@@ -48,13 +49,16 @@ public class Robot {
         slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
         slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k
         gripper = HardwareMap.get(Servo.class, "gripper");
-        imu = HardwareMap.get(IMU.class, "imu");
+        autoIMU = HardwareMap.get(IMU.class, "imu");
+        teleOpIMU = HardwareMap.get(IMU.class, "imu2");
 
         slideExt.setDirection(DcMotorSimple.Direction.REVERSE);
         slideRot.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
+        autoIMU.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
                 UsbFacingDirection.RIGHT)));
+        teleOpIMU.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
+                UsbFacingDirection.LEFT)));
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, imu);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
@@ -62,16 +66,16 @@ public class Robot {
     }
 
     public double getYawDegrees() {
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles orientation = teleOpIMU.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.DEGREES);
     }
 
     public double getYawRadians(){
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles orientation = teleOpIMU.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.RADIANS);
     }
 
     public void initAutoDrive(Telemetry telemetry){
-        autoDrive = new AutoDrive(backLeft, backRight, frontLeft, frontRight, imu, telemetry);
+        autoDrive = new AutoDrive(backLeft, backRight, frontLeft, frontRight, autoIMU, telemetry);
     }
 }
