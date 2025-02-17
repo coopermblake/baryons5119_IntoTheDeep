@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.lib.CustomPID;
 
 public class Drivetrain {
     private final DcMotor backLeft;
@@ -11,11 +16,37 @@ public class Drivetrain {
     private final DcMotor frontRight;
     private boolean fieldCentric = true;
     private boolean debounce = false;
-    public Drivetrain(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight) {
+
+    public double power;
+
+    private IMU imu;
+
+    @Config
+    public static class turnMacroPIDVals {
+        public static double kP = 0.005;
+        public static double kI = 0.0;
+        public static double kD = 0.0;
+    }
+
+
+    //TODO: make final
+    public CustomPID turnMacroPID = new CustomPID(turnMacroPIDVals.kP, turnMacroPIDVals.kI, turnMacroPIDVals.kD);
+
+    private enum TurnMacro {
+        NONE,
+        TURN_TO_BAR,
+        TURN_TO_BREN
+    }
+
+    public TurnMacro turnMacro = TurnMacro.NONE;
+
+    public double targetHeading;
+    public Drivetrain(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu) {
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
+        this.imu = imu;
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -30,7 +61,8 @@ public class Drivetrain {
 
     public void driveRobot(Gamepad gamepad1, Gamepad gamepad2, double heading) {
         double[] inputs = getTeleopDriveInputs(gamepad1, gamepad2, heading);
-        driveMovement(inputs[0], inputs[1], inputs[2], inputs[3]);
+//        handleMacros(gamepad1, heading);
+            driveMovement(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
     public double[] getTeleopDriveInputs(Gamepad gamepad1, Gamepad gamepad2, double heading) {
@@ -48,9 +80,14 @@ public class Drivetrain {
          */
         if(gamepad1.x && !debounce){
             fieldCentric = !fieldCentric;
+            imu.resetYaw();
             debounce = true;
         } else if (!gamepad1.x && debounce) {
             debounce = false;
+        }
+
+        if(gamepad1.y){
+            imu.resetYaw();
         }
 
         if(fieldCentric){
@@ -91,4 +128,45 @@ public class Drivetrain {
     public boolean getFieldCentric(){
         return fieldCentric;
     }
+
+//    private void handleMacros(Gamepad gamepad1, double heading){
+//        if(gamepad1.dpad_up || turnMacro == TurnMacro.TURN_TO_BAR){
+//            turnMacro = TurnMacro.TURN_TO_BAR;
+//            heading = Math.toDegrees(heading);
+//            targetHeading = 0.0;
+//
+//            power = turnMacroPID.cycleController(targetHeading, heading);
+//            power = Range.clip(power, -1.0, 1);
+//            power = power * -1;
+//
+//            frontLeft.setPower(power);
+//            backLeft.setPower(power);
+//            frontRight.setPower(-power);
+//            backRight.setPower(-power);
+//
+//        }
+//        if(gamepad1.dpad_down || turnMacro == TurnMacro.TURN_TO_BREN){
+//            turnMacro = TurnMacro.TURN_TO_BREN;
+//            heading = Math.toDegrees(heading);
+//            int sign_mult = (int) (heading/Math.abs(heading));
+//            targetHeading = 180; //copy sign of current heading to target heading
+//
+//            power = turnMacroPID.cycleController(targetHeading, Math.abs(heading));
+//            power = Range.clip(power, -1.0, 1);
+//            power = power * -1 * sign_mult;
+//
+//            frontLeft.setPower(power);
+//            backLeft.setPower(power);
+//            frontRight.setPower(-power);
+//            backRight.setPower(-power);
+//        }
+//
+//        if(Math.abs(heading-targetHeading) < 1.0 || gamepad1.dpad_left || gamepad1.dpad_right){
+//            turnMacro = TurnMacro.NONE;
+//            frontLeft.setPower(0);
+//            backLeft.setPower(0);
+//            frontRight.setPower(0);
+//            backRight.setPower(0);
+//        }
+//    }
 }

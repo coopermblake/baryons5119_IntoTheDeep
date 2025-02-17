@@ -7,7 +7,7 @@ public class CustomPID {
     double kI;
     double kD;
     double iT;
-    double pErr;
+    public double pErr;
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     public CustomPID(double kP, double kI, double kD) {
