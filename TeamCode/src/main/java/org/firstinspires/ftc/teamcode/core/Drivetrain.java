@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.lib.CustomPID;
 
 public class Drivetrain {
@@ -20,17 +21,22 @@ public class Drivetrain {
     public double power;
 
     private IMU imu;
+    private boolean holdingHeading = false;
+    public double targetHeading;
+    private double headingError;
+
 
     @Config
-    public static class turnMacroPIDVals {
+    public static class turnPIDVals {
         public static double kP = 0.005;
         public static double kI = 0.0;
         public static double kD = 0.0;
+        public static double hold_gain = 0.005;
     }
 
 
     //TODO: make final
-    public CustomPID turnMacroPID = new CustomPID(turnMacroPIDVals.kP, turnMacroPIDVals.kI, turnMacroPIDVals.kD);
+    //public CustomPID turnMacroPID = new CustomPID(turnMacroPIDVals.kP, turnMacroPIDVals.kI, turnMacroPIDVals.kD);
 
     private enum TurnMacro {
         NONE,
@@ -40,7 +46,6 @@ public class Drivetrain {
 
     public TurnMacro turnMacro = TurnMacro.NONE;
 
-    public double targetHeading;
     public Drivetrain(DcMotor backLeft, DcMotor backRight, DcMotor frontLeft, DcMotor frontRight, IMU imu) {
         this.backLeft = backLeft;
         this.backRight = backRight;
@@ -68,7 +73,7 @@ public class Drivetrain {
     public double[] getTeleopDriveInputs(Gamepad gamepad1, Gamepad gamepad2, double heading) {
         double inputY = -gamepad1.left_stick_y;
         double inputX = gamepad1.left_stick_x;
-        double inputRot = gamepad1.right_stick_x;
+        double inputRot = getHeadingHold(gamepad1);
 
         //check buttons
         /*DEBOUNCE LOGIC
@@ -128,6 +133,62 @@ public class Drivetrain {
     public boolean getFieldCentric(){
         return fieldCentric;
     }
+
+    private double getHeadingHold(Gamepad gamepad1){
+        if(!holdingHeading && Math.abs(gamepad1.right_stick_x)<0.05){
+            holdingHeading = true;
+            targetHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            return 0;
+        }
+        else if(Math.abs(gamepad1.right_stick_x)<0.05){
+            return getSteeringCorrection();
+
+        }
+        else{
+            holdingHeading = false;
+            return gamepad1.right_stick_x;
+        }
+
+    }
+
+    public double getSteeringCorrection() {
+
+        // Determine the heading current error
+        headingError = targetHeading - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+        //90-0
+
+        // Normalize the error to be within +/- 180 degrees
+        headingError = normalizeHeading(headingError);
+
+        // Calculate the turning power using proportional gain
+        double turnPower = -headingError * turnPIDVals.hold_gain;
+
+        // Clip the turning power to ensure it stays within the range [-0.2, 0.2]
+        turnPower = Range.clip(turnPower, -0.2, 0.2);
+        if(Math.abs(turnPower)<0.05){
+            return 0;
+        }
+        else{
+            return turnPower;
+        }
+    }
+
+    /**
+     * Normalize a heading error to be within the range [-180, 180] degrees.
+     *
+     * @param error  The heading error in degrees.
+     * @return       The normalized heading error.
+     */
+    private double normalizeHeading(double error) {
+        if (error > 180) {
+            error -= 360;
+        } else if (error <= -180) {
+            error += 360;
+        }
+        return error;
+    }
+
 
 //    private void handleMacros(Gamepad gamepad1, double heading){
 //        if(gamepad1.dpad_up || turnMacro == TurnMacro.TURN_TO_BAR){
