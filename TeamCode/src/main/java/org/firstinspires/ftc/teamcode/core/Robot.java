@@ -28,6 +28,8 @@ public class Robot {
     public DcMotor slideExt;
     public DcMotor slideRot;
 
+    public Servo sweeper;
+
     public Servo gripper;
     public IMU imu;
 
@@ -46,8 +48,10 @@ public class Robot {
         frontLeft = HardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = HardwareMap.get(DcMotor.class, "frontRight");
         slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
-        slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k
+        slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k4
+        sweeper = HardwareMap.get(Servo.class, "sweeper");
         gripper = HardwareMap.get(Servo.class, "gripper");
+
         imu = HardwareMap.get(IMU.class, "imu");
 
         slideExt.setDirection(DcMotorSimple.Direction.REVERSE);

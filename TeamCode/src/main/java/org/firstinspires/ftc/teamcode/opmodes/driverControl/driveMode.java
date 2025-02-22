@@ -55,6 +55,9 @@ public class driveMode extends LinearOpMode {
             telemetry.addLine("GRIPPER");
             telemetry.addData( "gripper", robot.gripper.getPosition());
 
+            telemetry.addLine("SWEEPER");
+            telemetry.addData("sweeper pos", robot.sweeper.getPosition());
+
             telemetry.update();
         }
     }
