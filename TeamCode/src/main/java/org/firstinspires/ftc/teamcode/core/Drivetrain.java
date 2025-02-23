@@ -73,7 +73,7 @@ public class Drivetrain {
     public double[] getTeleopDriveInputs(Gamepad gamepad1, Gamepad gamepad2, double heading) {
         double inputY = -gamepad1.left_stick_y;
         double inputX = gamepad1.left_stick_x;
-        double inputRot = getHeadingHold(gamepad1);
+        double inputRot = gamepad1.right_stick_x;
 
         //check buttons
         /*DEBOUNCE LOGIC

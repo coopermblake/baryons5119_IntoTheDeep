@@ -15,13 +15,14 @@ public class driveMode extends LinearOpMode {
         long lastCycleStart = System.currentTimeMillis();
         waitForStart();
         robot.viperSlide.driverControl = true;
-        robot.viperSlide.teleReset();
+        robot.viperSlide.resetEncoder();
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
             double headingRad = robot.getYawRadians();
             robot.drivetrain.driveRobot(gamepad1, gamepad2, headingRad);
             robot.viperSlide.teleopSlideMovement(gamepad1, gamepad2);
+            robot.sweep.teleInput(gamepad1);
             
             telemetry.addLine("DRIVING");
             telemetry.addData("field centric", robot.drivetrain.getFieldCentric());

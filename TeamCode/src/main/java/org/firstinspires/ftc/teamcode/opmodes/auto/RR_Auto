@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -21,7 +22,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Vector;
 
-@Autonomous(name = "RR Auto", group = "Autonomous")
+@Disabled (name = "RR Auto", group = "Autonomous")
 public class RR_Auto extends LinearOpMode {
 
     /*

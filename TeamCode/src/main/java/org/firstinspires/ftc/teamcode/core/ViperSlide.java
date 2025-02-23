@@ -6,7 +6,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -76,6 +78,22 @@ public class ViperSlide {
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.gripper = gripper;
+        slideExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideRot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        resetEncoder();
+    }
+
+    public ViperSlide(HardwareMap HardwareMap){
+        slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
+        slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k4
+        gripper = HardwareMap.get(Servo.class, "gripper");
+        gamepad1 = null;
+        gamepad2 = null;
+
+        slideExt.setDirection(DcMotorSimple.Direction.REVERSE);
+
         slideExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideRot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -158,6 +176,36 @@ public class ViperSlide {
         } else {
             debounceGripper = false;
         }
+    }
+
+    public void openGripper(){
+        gripper.setPosition(0.47);
+    }
+
+    public void closeGripper(){
+        gripper.setPosition(0.81);
+    }
+
+    public boolean rotHang(){
+        slideRot.setTargetPosition(rotMin+PP_Arm.rotHang);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+
+    public boolean extPreHang(){
+        slideExt.setTargetPosition(extMin+PP_Arm.extHangPre);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+
+    }
+
+    public boolean extPostHang(){
+        slideExt.setTargetPosition(extMin+PP_Arm.extHangPost);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
     }
 
     public void teleopSlideMovement(Gamepad gamepad1, Gamepad gamepad2) {
@@ -276,6 +324,7 @@ public class ViperSlide {
         }
 
     }
+
 
     //lift arm up to hang
     public class RotateUp implements Action {
@@ -437,21 +486,21 @@ public class ViperSlide {
         }
     }
 
-    public class CloseGripper implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPosition(0.81);
-            return false;
-        }
-    }
-
-    public class OpenGripper implements Action{
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            gripper.setPosition(0.47);
-            return false;
-        }
-    }
+//    public class CloseGripper implements Action {
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            gripper.setPosition(0.81);
+//            return false;
+//        }
+//    }
+//
+//    public class OpenGripper implements Action{
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet){
+//            gripper.setPosition(0.47);
+//            return false;
+//        }
+//    }
 
     public Action rotateUp(){
         return new RotateUp();
@@ -474,12 +523,12 @@ public class ViperSlide {
     public Action extendToDrag(){
         return new ExtendToDrag();
     }
-    public Action openGripper(){
-        return new OpenGripper();
-    }
-    public Action closeGripper(){
-        return new CloseGripper();
-    }
+//    public Action openGripper(){
+//        return new OpenGripper();
+//    }
+//    public Action closeGripper(){
+//        return new CloseGripper();
+//    }
     public Action extendToHome(){
         return new ExtendToHome();
     }
@@ -504,6 +553,13 @@ public class ViperSlide {
         public static int ext_drag = 3779;
         public static double slow_ext_speed = 0.5;
         public static int drag_retract = 3000;
+    }
+
+    @Config
+    public static class PP_Arm{
+        public static int rotHang = 2950;
+        public static int extHangPre = 1100;
+        public static int extHangPost = 510;
     }
 
 }

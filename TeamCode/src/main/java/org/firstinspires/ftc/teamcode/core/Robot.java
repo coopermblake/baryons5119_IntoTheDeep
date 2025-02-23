@@ -29,6 +29,7 @@ public class Robot {
     public DcMotor slideRot;
 
     public Servo sweeper;
+    public Sweeper sweep;
 
     public Servo gripper;
     public IMU imu;
@@ -62,6 +63,7 @@ public class Robot {
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, imu);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
+        sweep = new Sweeper(sweeper);
 
     }
 
