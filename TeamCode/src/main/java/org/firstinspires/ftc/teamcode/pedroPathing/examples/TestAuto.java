@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 @Autonomous(name = "test auto")
 public class TestAuto extends OpMode {
     private Follower follower;
-    private final Pose startPose = new Pose(0,0,Math.toRadians(90));
-    private final Pose barPose = new Pose(0,32,Math.toRadians(90));
+    private final Pose startPose = new Pose(0,0,Math.toRadians(0));
+    private final Pose barPose = new Pose(24,0,Math.toRadians(90));
     private final Pose push1Control1 = new Pose (16, 16, Math.toRadians(135));
     private final Pose push1Control2 = new Pose(28,39,Math.toRadians(180));
     private final Pose push1 = new Pose (44, 54, Math.toRadians(270));
@@ -36,8 +36,7 @@ public class TestAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                follower.followPath(push1chain);
-                setPathState(2);
+                 setPathState(2);
                 break;
             case 2:
                 setPathState(-1);

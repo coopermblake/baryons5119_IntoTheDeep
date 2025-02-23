@@ -201,6 +201,13 @@ public class ViperSlide {
 
     }
 
+    public boolean extHome(){
+        slideExt.setTargetPosition(extMin+Arm.ext_home);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+    }
+
     public boolean extPostHang(){
         slideExt.setTargetPosition(extMin+PP_Arm.extHangPost);
         slideExt.setPower(1.0);

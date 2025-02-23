@@ -12,20 +12,25 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.core.Sweeper;
 import org.firstinspires.ftc.teamcode.core.ViperSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.examples.GeneratedPaths;
 
 @Autonomous(name = "pp sweep 1", group = "Competition Opmodes")
 public class PP_Sweep extends OpMode {
     private Follower follower;
     ViperSlide viperSlide;
+    Sweeper sweeper;
 
     Point home = new Point(PPS.home.x, PPS.home.y);
 
     private Path allign1, drag1, allign2, drag2, allign3, drag3, score2, grab3, score3, grab4, score4, grab5, score5;
     private PathChain scorePreload;
+    private PathChain pcAllign1;
     private int pathState;
     private long pathStart;
     private long stepStart;
@@ -44,6 +49,13 @@ public class PP_Sweep extends OpMode {
                 .build();
 
         allign1 = new Path(new BezierCurve(makePoint(PPS.bar_r.class), makePoint(PPS.allign_1_c1.class), makePoint(PPS.allign_1_adj.class)));
+        allign1.setLinearHeadingInterpolation(Math.toRadians(PPS.bar_r.h), Math.toRadians(PPS.allign_1_adj.h));
+
+//        pcAllign1 = follower.pathBuilder()
+//                .addPath(new BezierCurve(makePoint(PPS.bar_r.class), makePoint(PPS.allign_1_c1.class), makePoint(PPS.allign_1_adj.class)))
+//                .setLinearHeadingInterpolation(PPS.bar_r.h, PPS.allign_1_adj.h)
+//                .build();
+
         drag1 = new Path(new BezierLine(makePoint(PPS.allign_1_r.class), makePoint(PPS.drag_1_adj.class)));
 
         allign2 = new Path(new BezierLine(makePoint(PPS.drag_1_r.class), makePoint(PPS.allign_2_adj.class)));
@@ -92,10 +104,22 @@ public class PP_Sweep extends OpMode {
                 break;
             case 4:
                 if(getStepTime() > PPS.delays.hangPostDelay){
+                    viperSlide.extHome();
                     follower.followPath(allign1);
                     setPathState(5);
                 }
                 break;
+            case 5:
+                if (!follower.isBusy()) {
+                    sweeper.deploy();
+                }
+                if(sweeper.sweeper.getPosition() < 0.1){
+                    setPathState(6);
+                }
+            case 6:
+                if(getStepTime() > PPS.delays.sweeperDeployDelay){
+                    setPathState(7);
+                }
         }
     }
 
@@ -112,6 +136,8 @@ public class PP_Sweep extends OpMode {
         buildPaths();
         viperSlide = new ViperSlide(hardwareMap);
         viperSlide.closeGripper();
+        sweeper = new Sweeper(hardwareMap.get(Servo.class, "sweeper"));
+        sweeper.retract();
     }
 
     @Override

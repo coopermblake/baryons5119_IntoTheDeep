@@ -15,6 +15,7 @@ public class PPS {
         public static double hangPreDelay = 0.0;
         public static double hangPostDelay = 0.5;
         public static double startDelay = 5.0;
+        public static double sweeperDeployDelay = 5.0;
     }
     @Config
     public static class home{
