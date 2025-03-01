@@ -7,6 +7,17 @@ import com.pedropathing.pathgen.Point;
 
 public class PPS {
 
+
+    @Config
+    public static class zpams{
+        public static double allign1 = 1;
+        public static double drag1 = 4;
+        public static double allign2 = 4;
+        public static double drag2 = 4;
+        public static double allign3 = 4;
+        public static double drag3 = 4;
+    }
+
     @Config
     public static class delays{
         public static double grabPreDelay = 0.9;
@@ -14,8 +25,9 @@ public class PPS {
         public static double grabRaiseMoveDelay = 0.5;
         public static double hangPreDelay = 0.0;
         public static double hangPostDelay = 0.5;
-        public static double startDelay = 5.0;
-        public static double sweeperDeployDelay = 5.0;
+        public static double startDelay = 2.0;
+        public static double sweeperDeployDelay = 2.0;
+        public static double allignSweeperDelay = 1.0;
     }
     @Config
     public static class home{
@@ -75,7 +87,7 @@ public class PPS {
     @Config
     public static class allign_1_r{
         public static double x = 36;
-        public static double y = 37.5;
+        public static double y = 35;
         public static double h = -15;
     }
     @Config
@@ -92,8 +104,8 @@ public class PPS {
 
     @Config
     public static class drag_1_r{
-        public static double x = 38;
-        public static double y = 36;
+        public static double x = 31;
+        public static double y = 30;
         public static double h = 225;
     }
     @Config
@@ -107,52 +119,52 @@ public class PPS {
     public static class allign_2_r{
         public static double x = 36;
         public static double y = 30;
-        public static double h = 330;
+        public static double h = -15;
     }
     @Config
     public static class allign_2_adj{
         public static double x = 36;
         public static double y = 30;
-        public static double h = 330;
+        public static double h = -15;
     }
 
     @Config
     public static class drag_2_r{
-        public static double x = 28;
-        public static double y = 30;
+        public static double x = 29.5;
+        public static double y = 25;
         public static double h = 225;
     }
     @Config
     public static class drag_2_adj{
-        public static double x = 28;
+        public static double x = 34;
         public static double y = 30;
         public static double h = 225;
     }
 
     @Config
     public static class allign_3_r{
-        public static double x = 42;
-        public static double y = 22;
-        public static double h = 280;
+        public static double x = 40;
+        public static double y = 24;
+        public static double h = 315;
     }
     @Config
     public static class allign_3_adj{
-        public static double x = 42;
-        public static double y = 22;
-        public static double h = 280;
+        public static double x = 40;
+        public static double y = 24;
+        public static double h = 315;
     }
 
     @Config
     public static class drag_3_r{
-        public static double x = 28;
-        public static double y = 26;
-        public static double h = 180;
+        public static double x = 24.5;
+        public static double y = 30;
+        public static double h = 240;
     }
     @Config
     public static class drag_3_adj{
-        public static double x = 28;
-        public static double y = 26;
-        public static double h = 180;
+        public static double x = 24.5;
+        public static double y = 30;
+        public static double h = 240;
     }
 
     @Config

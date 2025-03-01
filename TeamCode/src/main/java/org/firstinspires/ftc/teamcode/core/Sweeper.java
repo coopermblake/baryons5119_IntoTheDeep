@@ -26,4 +26,8 @@ public class Sweeper {
     public void deploy(){
         sweeper.setPosition(0);
     }
+
+    public void raise(){
+        sweeper.setPosition(0.3);
+    }
 }
