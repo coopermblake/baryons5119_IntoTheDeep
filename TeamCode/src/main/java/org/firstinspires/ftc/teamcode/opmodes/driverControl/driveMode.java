@@ -22,8 +22,7 @@ public class driveMode extends LinearOpMode {
             double headingRad = robot.getYawRadians();
             robot.drivetrain.driveRobot(gamepad1, gamepad2, headingRad);
             robot.viperSlide.teleopSlideMovement(gamepad1, gamepad2);
-            robot.sweep.teleInput(gamepad1);
-            
+
             telemetry.addLine("DRIVING");
             telemetry.addData("field centric", robot.drivetrain.getFieldCentric());
             telemetry.addData("Heading degrees:", robot.getYawDegrees());
@@ -55,9 +54,10 @@ public class driveMode extends LinearOpMode {
 
             telemetry.addLine("GRIPPER");
             telemetry.addData( "gripper", robot.gripper.getPosition());
+            telemetry.addData("rotGripper", robot.gripRotate.getPosition());
 
-            telemetry.addLine("SWEEPER");
-            telemetry.addData("sweeper pos", robot.sweeper.getPosition());
+            //telemetry.addLine("SWEEPER");
+            //telemetry.addData("sweeper pos", robot.sweeper.getPosition());
 
             telemetry.update();
         }

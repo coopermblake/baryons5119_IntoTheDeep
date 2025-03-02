@@ -12,16 +12,19 @@ public class Sweeper {
 
     public void teleInput(Gamepad gamepad1){
         if(gamepad1.left_bumper){
-            deploy();
+            //deploy();
+            sweeper.setPosition(sweeper.getPosition() + 0.01);
         }
         if(gamepad1.right_bumper){
-            retract();
+            //retract();
+            sweeper.setPosition(sweeper.getPosition() - 0.01);
         }
     }
 
     public void retract(){
         sweeper.setPosition(0.70);
     }
+
 
     public void deploy(){
         sweeper.setPosition(0);

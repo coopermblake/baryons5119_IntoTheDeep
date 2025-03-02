@@ -22,6 +22,8 @@ public class ViperSlide {
     private final Gamepad gamepad1;
     private final Gamepad gamepad2;
     private final Servo gripper;
+    private final Servo gripRotate;
+    private final double gripRotateSpeed = 0.01;
     private boolean debounceGripper = false;
     private boolean last_d_pad_up = false;
     private boolean gripperPosition = false;
@@ -72,12 +74,13 @@ public class ViperSlide {
     //TODO: make final
     public CustomPID rotationHoldPID = new CustomPID(rotPID.kP, rotPID.kI, rotPID.kD);
 
-    public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
+    public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper, Servo gripRotate) {
         this.slideExt = slideExt;
         this.slideRot = slideRot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.gripper = gripper;
+        this.gripRotate = gripRotate;
         slideExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideRot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -89,6 +92,7 @@ public class ViperSlide {
         slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
         slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k4
         gripper = HardwareMap.get(Servo.class, "gripper");
+        gripRotate = HardwareMap.get(Servo.class, "gripRotate");
         gamepad1 = null;
         gamepad2 = null;
 
@@ -178,6 +182,26 @@ public class ViperSlide {
         }
     }
 
+    private void handleGripRotate(){
+        //mid = 0.5594
+        //right = 0.69
+        //left = 0.47
+
+        if(gamepad2.a){
+            //set center position
+            gripRotate.setPosition(0.5594);
+        }
+        if(gamepad2.b){
+            //set right position
+            gripRotate.setPosition(Math.max(gripRotate.getPosition() - gripRotateSpeed, 0.44));
+        }
+        if(gamepad2.x){
+            //set left position
+            gripRotate.setPosition(Math.min(gripRotate.getPosition() + gripRotateSpeed, 0.69));
+        }
+
+    }
+
     public void openGripper(){
         gripper.setPosition(0.47);
     }
@@ -220,11 +244,12 @@ public class ViperSlide {
         double rotPower;
         //TODO: make separate funcions to allow macroing one while manual the other
 
-        handleRotateMacros(gamepad2);
-        handleExtendMacros(gamepad2);
+        //handleRotateMacros(gamepad2);
+        //handleExtendMacros(gamepad2);
 
         if (driverControl && rotateMacro == RotateMacro.NONE && extendMacro == ExtendMacro.NONE) {
             handleGripper();
+            handleGripRotate();
 
             if(gamepad2.start){
                 teleReset();
@@ -285,7 +310,7 @@ public class ViperSlide {
 
     }
 
-    private void handleExtendMacros(Gamepad gamepad2){
+    private void handleExtendMacros(){
         //up for up, down for down, right for horizontal, left for stop
         //TODO: make these values based on the Arm config class
 

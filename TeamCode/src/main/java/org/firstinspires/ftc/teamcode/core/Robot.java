@@ -28,10 +28,10 @@ public class Robot {
     public DcMotor slideExt;
     public DcMotor slideRot;
 
-    public Servo sweeper;
-    public Sweeper sweep;
+   // public Servo sweeper;
 
     public Servo gripper;
+    public Servo gripRotate;
     public IMU imu;
 
     public Gamepad gamepad1;
@@ -39,6 +39,8 @@ public class Robot {
 
     public Drivetrain drivetrain;
     public ViperSlide viperSlide;
+    //public Sweeper sweep;
+
     public AutoDrive autoDrive;
 
     public Robot(HardwareMap HardwareMap, Gamepad Gamepad1, Gamepad Gamepad2) {
@@ -50,8 +52,9 @@ public class Robot {
         frontRight = HardwareMap.get(DcMotor.class, "frontRight");
         slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
         slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k4
-        sweeper = HardwareMap.get(Servo.class, "sweeper");
+        //sweeper = HardwareMap.get(Servo.class, "sweeper");
         gripper = HardwareMap.get(Servo.class, "gripper");
+        gripRotate = HardwareMap.get(Servo.class, "gripRotate");
 
         imu = HardwareMap.get(IMU.class, "imu");
 
@@ -62,8 +65,9 @@ public class Robot {
                 UsbFacingDirection.RIGHT)));
 
         drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, imu);
-        viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
-        sweep = new Sweeper(sweeper);
+        viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper, gripRotate);
+        //sweep = new Sweeper(sweeper);
+
 
     }
 
