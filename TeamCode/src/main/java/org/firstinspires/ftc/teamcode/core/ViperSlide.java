@@ -14,8 +14,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.lib.CustomPID;
 
-import java.util.Timer;
-
 public class ViperSlide {
     public final DcMotor slideExt;
     public final DcMotor slideRot;
@@ -202,13 +200,18 @@ public class ViperSlide {
 
     }
 
+    public void rotateGripperToCenter(){
+        gripRotate.setPosition(0.5594);
+    }
+
     public void openGripper(){
-        gripper.setPosition(0.47);
+        gripper.setPosition(0.48);
     }
 
     public void closeGripper(){
-        gripper.setPosition(0.81);
+        gripper.setPosition(0.80);
     }
+    public void middleGripper(){gripper.setPosition((0.47+0.81)/2);}
 
     public boolean rotHang(){
         slideRot.setTargetPosition(rotMin+PP_Arm.rotHang);
@@ -232,6 +235,13 @@ public class ViperSlide {
         return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
     }
 
+    public boolean extHor(){
+        slideExt.setTargetPosition(extMin+PP_Arm.exthor);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+    }
+
     public boolean extPostHang(){
         slideExt.setTargetPosition(extMin+PP_Arm.extHangPost);
         slideExt.setPower(1.0);
@@ -239,6 +249,66 @@ public class ViperSlide {
         return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
     }
 
+    public boolean rotBasket(){
+        slideRot.setTargetPosition(rotMin+PPB_Arm.rotScore);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean basketRotRetract(){
+        slideRot.setTargetPosition(rotMin+PPB_Arm.rotRetract);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean extBasket(){
+        slideExt.setTargetPosition(extMin+PPB_Arm.extScore);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+    }
+    public boolean rotPickPre(){
+        slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPre);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean rotPickPost(){
+        slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPost);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean rotAwayFromBar(){
+        slideRot.setTargetPosition(rotMin+PPP_Arm.rotHangPost);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean rotHorPre(){
+        slideRot.setTargetPosition(rotMin+PPP_Arm.rotHorPre);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean rotHorPost(){
+        slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPost);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean extHang(){
+        slideExt.setTargetPosition(extMin+ PPP_Arm.extHor);
+        slideExt.setPower(0.5);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+    }
+    public boolean extPick(){
+        slideExt.setTargetPosition(extMin+PPB_Arm.extPick);
+        slideExt.setPower(1.0);
+        slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+    }
     public void teleopSlideMovement(Gamepad gamepad1, Gamepad gamepad2) {
         double extPower;
         double rotPower;
@@ -592,6 +662,27 @@ public class ViperSlide {
         public static int rotHang = 2950;
         public static int extHangPre = 1100;
         public static int extHangPost = 510;
+    }
+
+    @Config
+    public static class PPB_Arm{
+        public static int rotScore = 3229;
+        public static int rotRetract = 3400;
+        public static int extScore = 3930;
+        public static int extPick = 1700;
+        public static int rotPickPre = 1000;
+        public static int rotPickPost = 0;
+    }
+
+    @Config
+    public static class PPP_Arm{
+        public static int rotHangPre = 2950;
+        public static int extHangPre = 1100;
+        public static int extHangPost = 510;
+        public static int rotHangPost = 3100;
+        public static int rotHorPre = 1000;
+        public static int extHor = 1200;
+        public static int rotHorPost = 1200;
     }
 
 }

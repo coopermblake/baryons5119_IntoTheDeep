@@ -84,7 +84,7 @@ public class testMode extends LinearOpMode {
                 robot.backRight.setPower(0);
             }
             if (robot.gamepad1.x) {
-                robot.frontLeft.setPower(0.5);
+                robot.frontLeft.setPower(-0.5);
             } else {
                 robot.frontLeft.setPower(0);
             }
