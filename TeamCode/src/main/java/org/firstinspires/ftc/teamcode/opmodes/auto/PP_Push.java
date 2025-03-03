@@ -6,16 +6,22 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.core.ViperSlide;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "PP push", group = "Competition Opmodes")
+@Autonomous(name = "pp push", group = "Competition Opmodes")
 public class PP_Push extends OpMode {
+    //TODO: make robot finish rotating, then drive straight forward when hanging specimen
+    //TODO: remove time based delay for retracting arm when scoring
+
     private Follower follower;
     ViperSlide viperSlide;
-    private PathChain score1, push1, score2, pick3, score3, park;
+    private PathChain score1, push11, push12, push13, push1, score2, pick3, score3, park;
     private int pathState;
     private long pathStart;
     private long stepStart;
@@ -34,6 +40,7 @@ public class PP_Push extends OpMode {
         push1 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score1_r.class), makePoint(nextToBar_c1.class), makePoint(nextToBar_adj.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(score1_r.h), Math.toRadians(nextToBar_adj.h))
+                .setPathEndTimeoutConstraint(5)
                 .addPath(new BezierCurve(makePoint(nextToBar_r.class), makePoint(push1_c1.class), makePoint(push1_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(nextToBar_r.h))
                 .addPath(new BezierLine(makePoint(push1_r.class), makePoint(pickup2_adj.class)))
@@ -62,39 +69,39 @@ public class PP_Push extends OpMode {
     private void autonomousPathUpdate(){
         switch(pathState){
             case 0:
-                //raise arm and extend
+                //score_raise arm and extend
                 viperSlide.rotHang();
                 viperSlide.extPreHang();
-                setPathState(-1);
+                setPathState(1);
                 break;
 
             case 1:
                 //drive to bar
                 if(getStepTime() > delays.start_raise){
                     follower.followPath(score1, true);
-                    setPathState(-1);
+                    setPathState(2);
                 }
                 break;
             case 2:
                 //retract arm to score first specimen
-                if(!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang()){
+                if(!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang() && getStepTime() > delays.score_raise){
                     viperSlide.extPostHang();
-                    setPathState(-1);
+                    setPathState(3);
                 }
                 break;
             case 3:
                 //release sample
                 if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
-                    setPathState(-1);
+                    setPathState(4);
                 }
                 break;
             case 4:
-                //slightly raise arm away from bar
+                //slightly score_raise arm away from bar
 
                 if(getStepTime() > delays.score_post){
                     if(viperSlide.rotAwayFromBar()) {
-                        setPathState(-1);
+                        setPathState(5);
                     }
                 }
                 break;
@@ -105,29 +112,35 @@ public class PP_Push extends OpMode {
                 viperSlide.extHome();
                 viperSlide.rotHorPre();
                 follower.followPath(push1, false);
-                if(!follower.isBusy() && viperSlide.extHome() && viperSlide.rotHorPre()){
-                    setPathState(-1);
-                }
+                setPathState(6);
                 break;
             case 6:
-                //extend to grab
-                if(getStepTime() > delays.grab_pre){
-                    viperSlide.extHor();
+                if(!follower.isBusy() && viperSlide.extHome() && viperSlide.rotHorPre()){
+                    setPathState(7);
                 }
                 break;
             case 7:
-                //grab specimen
-                if(viperSlide.extHor()){
-                    viperSlide.closeGripper();
+                //extend to grab
+                if(getStepTime() > delays.grab_pre){
+                    viperSlide.extHor();
+                    setPathState(8);
                 }
                 break;
             case 8:
-                //raise arm slightly to avoid getting caught on wall
-                if(getStepTime() > delays.grab_post){
-                    viperSlide.rotHorPost();
+                //grab specimen
+                if(viperSlide.extHor()){
+                    viperSlide.closeGripper();
+                    setPathState(9);
                 }
                 break;
             case 9:
+                //score_raise arm slightly to avoid getting caught on wall
+                if(getStepTime() > delays.grab_post){
+                    viperSlide.rotHorPost();
+                    setPathState(10);
+                }
+                break;
+            case 10:
                 //rotate to hang position
                 //extend to hang position
                 //drive to bar
@@ -135,30 +148,32 @@ public class PP_Push extends OpMode {
                     viperSlide.rotHang();
                     viperSlide.extPreHang();
                     follower.followPath(score2, true);
-                    setPathState(-1);
+                    setPathState(11);
                 }
                 break;
-            case 10:
+            case 11:
                 //retract arm to hang specimen 2
                 if (!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang()) {
                     viperSlide.extPostHang();
+                    setPathState(12);
                 }
-            case 11:
+                break;
+            case 12:
                 //release specimen 2
-                if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
+                if(viperSlide.extPostHang() && getStepTime() > delays.score_raise){
                     viperSlide.openGripper();
                     setPathState(-1);
                 }
                 break;
-            case 12:
-                //slightly raise arm away from bar
+            case 13:
+                //slightly score_raise arm away from bar
                 if(getStepTime() > delays.score_post){
                     if(viperSlide.rotAwayFromBar()) {
                         setPathState(-1);
                     }
                 }
                 break;
-            case 13:
+            case 14:
                 //retract arm
                 //lower arm to grabbing position
                 //drive to OZ
@@ -169,25 +184,25 @@ public class PP_Push extends OpMode {
                     setPathState(-1);
                 }
                 break;
-            case 14:
+            case 15:
                 //extend to grab specimen 3
                 if(getStepTime() > delays.grab_pre){
                     viperSlide.extHor();
                 }
                 break;
-            case 15:
+            case 16:
                 //grab specimen 3
                 if(viperSlide.extHor()){
                     viperSlide.closeGripper();
                 }
                 break;
-            case 16:
-                //raise arm slightly to avoid getting caught on wall
+            case 17:
+                //score_raise arm slightly to avoid getting caught on wall
                 if(getStepTime() > delays.grab_post){
                     viperSlide.rotHorPost();
                 }
                 break;
-            case 17:
+            case 18:
                 //rotate to hang position
                 //extend to hang position
                 //drive to bar
@@ -197,28 +212,28 @@ public class PP_Push extends OpMode {
                     follower.followPath(score3, true);
                     setPathState(-1);
                 }
-            case 18:
+            case 19:
                 //retract arm to hang specimen 3
                 if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
                     setPathState(-1);
                 }
                 break;
-            case 19:
+            case 20:
                 //release specimen 3
                 if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
                     setPathState(-1);
                 }
                 break;
-            case 20:
-                //slightly raise arm away from bar
+            case 21:
+                //slightly score_raise arm away from bar
                 if(getStepTime() > delays.score_post){
                     if(viperSlide.rotAwayFromBar()) {
                         setPathState(-1);
                     }
                 }
-            case 21:
+            case 22:
                 //fully retract arm
                 //lower arm to bottom position
                 //park
@@ -234,11 +249,24 @@ public class PP_Push extends OpMode {
     }
     @Override
     public void init() {
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(PPP.makePose(PPP.start.class));
+        buildPaths();
+        viperSlide = new ViperSlide(hardwareMap);
+        viperSlide.closeGripper();
+        viperSlide.rotateGripperToCenter();
 
     }
 
     @Override
     public void loop() {
-
+        follower.update();
+        autonomousPathUpdate();
+        telemetry.addData("Path State", pathState);
+        telemetry.addData("Position", follower.getPose().toString());
+        telemetry.addData("Path Time", getPathTime());
+        telemetry.addData("Step Time", getStepTime());
+        telemetry.update();
     }
 }

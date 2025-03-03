@@ -236,8 +236,8 @@ public class ViperSlide {
     }
 
     public boolean extHor(){
-        slideExt.setTargetPosition(extMin+PP_Arm.exthor);
-        slideExt.setPower(1.0);
+        slideExt.setTargetPosition(extMin+PPP_Arm.extHor);
+        slideExt.setPower(0.5);
         slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
     }
@@ -292,7 +292,7 @@ public class ViperSlide {
         return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
     }
     public boolean rotHorPost(){
-        slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPost);
+        slideRot.setTargetPosition(rotMin+PPP_Arm.rotHorPost);
         slideRot.setPower(1.0);
         slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
@@ -659,9 +659,9 @@ public class ViperSlide {
 
     @Config
     public static class PP_Arm{
-        public static int rotHang = 2950;
+        public static int rotHang = 2600;
         public static int extHangPre = 1100;
-        public static int extHangPost = 510;
+        public static int extHangPost = 480;
     }
 
     @Config
@@ -676,12 +676,12 @@ public class ViperSlide {
 
     @Config
     public static class PPP_Arm{
-        public static int rotHangPre = 2950;
+        public static int rotHangPre = 2600;
         public static int extHangPre = 1100;
-        public static int extHangPost = 510;
+        public static int extHangPost = 480;
         public static int rotHangPost = 3100;
-        public static int rotHorPre = 1000;
-        public static int extHor = 1200;
+        public static int rotHorPre = 800;
+        public static int extHor = 600;
         public static int rotHorPost = 1200;
     }
 
