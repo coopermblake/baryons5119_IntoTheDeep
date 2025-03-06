@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.core.Robot;
 
-@Autonomous(name = "Hang and park", group = "Competition Opmodes")
+@Disabled//(name = "Hang and park", group = "Competition Opmodes")
 public class HangAndPark extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // TODO: huge hack, please replace this later

@@ -280,8 +280,6 @@ public class PP_Push3 extends OpMode {
         buildPaths();
         viperSlide = new ViperSlide(hardwareMap);
         viperSlide.closeGripper();
-        viperSlide.rotateGripperToCenter();
-
     }
 
     @Override

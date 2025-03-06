@@ -11,6 +11,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.examples.GeneratedPaths;
 
-@Autonomous(name = "pp sweep 1", group = "Competition Opmodes")
+@Disabled//(name = "pp sweep 1", group = "Competition Opmodes")
 public class PP_Sweep extends OpMode {
     private Follower follower;
     ViperSlide viperSlide;

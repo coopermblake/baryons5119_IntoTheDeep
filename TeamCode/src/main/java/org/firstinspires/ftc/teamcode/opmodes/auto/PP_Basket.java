@@ -179,7 +179,7 @@ public class PP_Basket extends OpMode {
                 }
                 break;
             case 17:
-                //rotate down onto sample 2
+                //rotate down onto sample 3
                 if(viperSlide.extPick()){
                     viperSlide.rotPickPost();
                     setPathState(18);
@@ -211,6 +211,74 @@ public class PP_Basket extends OpMode {
                 }
                 break;
             case 21:
+                //release sample
+                if(getStepTime() > delays.release_pre && viperSlide.extBasket()){
+                    viperSlide.openGripper();
+                    setPathState(22);
+                }
+                break;
+            case 22:
+                //rotate slightly back to avoid getting caught on basket
+                if(getStepTime() > delays.release_post){
+                    viperSlide.basketRotRetract();
+                    setPathState(23);
+                }
+                break;
+            case 23:
+                //retract slide
+                if(viperSlide.basketRotRetract()){
+                    viperSlide.extHome();
+                    setPathState(24);
+                }
+                break;
+            case 24:
+                //lower slide and drive to pickup second sample
+                if(viperSlide.extHome()){
+                    viperSlide.rotPickPre();
+                    follower.followPath(pickup3, true);
+                    setPathState(25);
+                }
+                break;
+            case 25:
+                //extend slide to pickup position
+                if(!follower.isBusy() && viperSlide.rotPickPre()){
+                    viperSlide.extPick();
+                    setPathState(26);
+                }
+                break;
+            case 26:
+                //rotate down onto sample 2
+                if(viperSlide.extPick()){
+                    viperSlide.rotPickPost();
+                    setPathState(27);
+                }
+                break;
+            case 27:
+                //grab sample
+                if(viperSlide.rotPickPost()){
+                    viperSlide.closeGripper();
+                    setPathState(28);
+                }
+                break;
+            case 28:
+                //retract and rotate up and drive to basket
+                if(getStepTime() > delays.pick){
+                    viperSlide.rotBasket();
+                    viperSlide.extHome();
+                    if(getStepTime() > delays.pick + delays.score_move){
+                        follower.followPath(score3, true);
+                        setPathState(29);
+                    }
+                }
+                break;
+            case 29:
+                //extend to basket
+                if (!follower.isBusy() && viperSlide.rotBasket()) {
+                    viperSlide.extBasket();
+                    setPathState(30);
+                }
+                break;
+            case 30:
                 //release sample
                 if(getStepTime() > delays.release_pre && viperSlide.extBasket()){
                     viperSlide.openGripper();

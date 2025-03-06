@@ -11,6 +11,7 @@ public class PPB {
         public static double release_post = 1;
         public static double pick = 0.5;
         public static double score_move = 1;
+        public static double score_extend = 2;
     }
     @Config
     public static class start{

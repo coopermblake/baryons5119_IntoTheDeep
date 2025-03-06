@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -86,7 +87,7 @@ import org.firstinspires.ftc.teamcode.core.Robot;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="EncoderBasedAuto", group="Competition Opmodes")
+@Disabled//(name="EncoderBasedAuto", group="Competition Opmodes")
 public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
     Robot robot;
     private double headingError  = 0;

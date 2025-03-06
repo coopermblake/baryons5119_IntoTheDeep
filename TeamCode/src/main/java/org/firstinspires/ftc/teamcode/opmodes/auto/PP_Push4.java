@@ -8,13 +8,14 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.core.ViperSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "pp push 4", group = "Competition Opmodes")
+@Disabled//(name = "pp push 4", group = "Competition Opmodes")
 public class PP_Push4 extends OpMode {
     //TODO: make robot finish rotating, then drive straight forward when hanging specimen
     //TODO: remove time based delay for retracting arm when scoring

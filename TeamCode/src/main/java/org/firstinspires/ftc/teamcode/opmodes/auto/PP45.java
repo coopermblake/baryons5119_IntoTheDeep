@@ -163,18 +163,18 @@ public class PP45 {
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score2_c1{
         public static double x = 8;
         public static double y = 70;
     }
-    //@Config
+    @Config
     public static class score2_a{
         public static double x = 28;
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score2_r{
         public static double x = 35;
         public static double y = 68;
@@ -185,7 +185,7 @@ public class PP45 {
         public static double y = 30;
         public static double h = 180;
     }
-    //@Config
+    @Config
     public static class pickup3_c1{
         public static double x = 12;
         public static double y = 70;
@@ -195,18 +195,18 @@ public class PP45 {
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score3_c1{
         public static double x = 8;
         public static double y = 70;
     }
-    //@Config
+    @Config
     public static class score3_a{
         public static double x = 28;
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score3_r{
         public static double x = 35;
         public static double y = 68;
@@ -217,7 +217,7 @@ public class PP45 {
         public static double y = 30;
         public static double h = 180;
     }
-    //@Config
+    @Config
     public static class pickup4_c1{
         public static double x = 12;
         public static double y = 70;
@@ -227,18 +227,18 @@ public class PP45 {
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score4_c1{
         public static double x = 8;
         public static double y = 70;
     }
-    //@Config
+    @Config
     public static class score4_a{
         public static double x = 28;
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score4_r{
         public static double x = 35;
         public static double y = 68;
@@ -249,7 +249,7 @@ public class PP45 {
         public static double y = 30;
         public static double h = 180;
     }
-    //@Config
+    @Config
     public static class pickup5_c1{
         public static double x = 12;
         public static double y = 70;
@@ -259,18 +259,18 @@ public class PP45 {
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score5_c1{
         public static double x = 8;
         public static double y = 70;
     }
-    //@Config
+    @Config
     public static class score5_a{
         public static double x = 28;
         public static double y = 68;
         public static double h = 0;
     }
-    //@Config
+    @Config
     public static class score5_r{
         public static double x = 35;
         public static double y = 68;
