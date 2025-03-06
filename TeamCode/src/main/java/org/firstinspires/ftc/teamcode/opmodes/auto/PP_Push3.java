@@ -36,6 +36,7 @@ public class PP_Push3 extends OpMode {
         score1 = follower.pathBuilder()
                 .addPath(new BezierLine(makePoint(start.class), makePoint(score1_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(start.h))
+                .setPathEndTimeoutConstraint(delays.score1_timeout)
                 .build();
         push1 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score1_r.class), makePoint(nextToBar_c1.class), makePoint(nextToBar_adj.class)))
@@ -47,16 +48,22 @@ public class PP_Push3 extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(push1_r.h))
                 .build();
         score2 = follower.pathBuilder()
-                .addPath(new BezierCurve(makePoint(pickup2_r.class), makePoint(score2_c1.class), makePoint(score2_adj.class)))
-                .setLinearHeadingInterpolation(Math.toRadians(pickup2_r.h), Math.toRadians(score2_adj.h))
+                .addPath(new BezierCurve(makePoint(pickup2_r.class), makePoint(score2_c1.class), makePoint(score2_a.class)))
+                .setLinearHeadingInterpolation(Math.toRadians(pickup2_r.h), Math.toRadians(score2_a.h))
+                .addPath(new BezierLine(makePoint(score2_a.class), makePoint(score2_adj.class)))
+                .setConstantHeadingInterpolation(Math.toRadians(score2_a.h))
+                .setZeroPowerAccelerationMultiplier(zpams.score2)
                 .build();
         pick3 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score2_r.class), makePoint(pickup3_c1.class), makePoint(pickup3_adj.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(score2_r.h), Math.toRadians(pickup3_adj.h))
                 .build();
         score3 = follower.pathBuilder()
-                .addPath(new BezierCurve(makePoint(pickup3_r.class), makePoint(score3_c1.class), makePoint(score3_adj.class)))
-                .setLinearHeadingInterpolation(Math.toRadians(pickup3_r.h), Math.toRadians(score3_adj.h))
+                .addPath(new BezierCurve(makePoint(pickup3_r.class), makePoint(score3_c1.class), makePoint(score3_a.class)))
+                .setLinearHeadingInterpolation(Math.toRadians(pickup3_r.h), Math.toRadians(score3_a.h))
+                .addPath(new BezierLine(makePoint(score3_a.class), makePoint(score3_adj.class)))
+                .setConstantHeadingInterpolation(Math.toRadians(score3_a.h))
+                .setZeroPowerAccelerationMultiplier(zpams.score3)
                 .build();
         park = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score3_r.class), makePoint(park_c1.class), makePoint(park_r.class)))
@@ -86,6 +93,7 @@ public class PP_Push3 extends OpMode {
                 //retract arm to score first specimen
                 if(!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang() && getStepTime() > delays.score_raise){
                     viperSlide.extPostHang();
+                    viperSlide.rotLock();
                     setPathState(3);
                 }
                 break;
@@ -144,6 +152,7 @@ public class PP_Push3 extends OpMode {
                 //rotate to hang position
                 //extend to hang position
                 //drive to bar
+                viperSlide.closeGripper();
                 if(viperSlide.rotHorPost()){
                     viperSlide.rotHang();
                     viperSlide.extPreHang();
@@ -153,14 +162,16 @@ public class PP_Push3 extends OpMode {
                 break;
             case 11:
                 //retract arm to hang specimen 2
+                viperSlide.closeGripper();
                 if (!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang() && getStepTime() > delays.score_raise) {
                     viperSlide.extPostHang();
+                    viperSlide.rotLock();
                     setPathState(12);
                 }
                 break;
             case 12:
                 //release specimen 2
-                if(viperSlide.extPostHang()){
+                if(viperSlide.extPostHang() && viperSlide.rotLock() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
                     setPathState(13);
                 }
@@ -203,6 +214,7 @@ public class PP_Push3 extends OpMode {
                 break;
             case 18:
                 //score_raise arm slightly to avoid getting caught on wall
+                viperSlide.closeGripper();
                 if(getStepTime() > delays.grab_post){
                     viperSlide.rotHorPost();
                     setPathState(19);
@@ -212,6 +224,7 @@ public class PP_Push3 extends OpMode {
                 //rotate to hang position
                 //extend to hang position
                 //drive to bar
+                viperSlide.closeGripper();
                 if(viperSlide.rotHorPost()){
                     viperSlide.rotHang();
                     viperSlide.extPreHang();
@@ -221,14 +234,16 @@ public class PP_Push3 extends OpMode {
                 break;
             case 20:
                 //retract arm to hang specimen 3
+                viperSlide.closeGripper();
                 if (!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang() && getStepTime() > delays.score_raise) {
                     viperSlide.extPostHang();
+                    viperSlide.rotLock();
                     setPathState(21);
                 }
                 break;
             case 21:
                 //release specimen 3
-                if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
+                if(viperSlide.extPostHang() && viperSlide.rotLock() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
                     setPathState(22);
                 }

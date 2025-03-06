@@ -22,7 +22,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Vector;
 
-@Disabled (name = "RR Auto", group = "Autonomous")
+@Autonomous (name = "RR Auto", group = "Autonomous")
 public class RR_Auto extends LinearOpMode {
 
     /*
@@ -139,7 +139,7 @@ public class RR_Auto extends LinearOpMode {
             telemetry.addData("Y", mecanumDrive.localizer.getPose().position.y);
             telemetry.update();
             //telemetry.addData("Heading", mecanumDrive.localizer.getPose().heading.toDouble());
-            Actions.runBlocking(viperSlide.closeGripper());
+            Actions.runBlocking(viperSlide.closeGripperAction());
         }
 
         waitForStart();
@@ -158,7 +158,7 @@ public class RR_Auto extends LinearOpMode {
                             ),
 
                             viperSlide.retractToHang(),
-                            viperSlide.openGripper(),
+                            viperSlide.openGripperAction(),
 
                             new ParallelAction(
                                     pushPieceToOZ(mecanumDrive).build(),
@@ -172,7 +172,7 @@ public class RR_Auto extends LinearOpMode {
 
                             new SleepAction(Acons.grabPreDelay),
                             viperSlide.slowExtendToGrab(),
-                            viperSlide.closeGripper(),
+                            viperSlide.closeGripperAction(),
                             new SleepAction(Acons.grabPostDelay),
 
                             new ParallelAction(
@@ -192,7 +192,7 @@ public class RR_Auto extends LinearOpMode {
                                     viperSlide.retractToHang(),
                                     viperSlide.rotateLock()
                             ),
-                            viperSlide.openGripper(),
+                            viperSlide.openGripperAction(),
                             new SleepAction(Acons.grabRaiseMoveDelay),
 
                             new ParallelAction(
@@ -206,7 +206,7 @@ public class RR_Auto extends LinearOpMode {
 
                             new SleepAction(Acons.grabPreDelay),
                             viperSlide.slowExtendToGrab(),
-                            viperSlide.closeGripper(),
+                            viperSlide.closeGripperAction(),
                             new SleepAction(Acons.grabPostDelay),
 
                             new ParallelAction(
@@ -227,7 +227,7 @@ public class RR_Auto extends LinearOpMode {
                                     viperSlide.rotateLock()
                             ),
                             new ParallelAction(
-                                    viperSlide.openGripper(),
+                                    viperSlide.openGripperAction(),
                                     viperSlide.extendToHome(),
                                     new SequentialAction(
                                             new SleepAction(Acons.grabRaiseMoveDelay),

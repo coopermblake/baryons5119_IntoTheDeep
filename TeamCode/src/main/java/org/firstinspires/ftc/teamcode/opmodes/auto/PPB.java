@@ -9,7 +9,8 @@ public class PPB {
     public static class delays{
         public static double release_pre = 1;
         public static double release_post = 1;
-        public static double pick = 1;
+        public static double pick = 0.5;
+        public static double score_move = 1;
     }
     @Config
     public static class start{
@@ -20,8 +21,8 @@ public class PPB {
 
     @Config
     public static class basket_r{
-        public static double x = 17;
-        public static double y = 123;
+        public static double x = 15;
+        public static double y = 125;
         public static double h = 135;
     }
     @Config
@@ -31,32 +32,45 @@ public class PPB {
     }
     @Config
     public static class score1_adj{
-        public static double x = 17;
-        public static double y = 123;
+        public static double x = 15;
+        public static double y = 125;
         public static double h = 135;
     }
     @Config
     public static class pick_2_adj{
         public static double x = 27;
-        public static double y = 122;
+        public static double y = 121.25;
         public static double h = 0;
+    }
+    @Config
+    public static class pick_2_adj_left{
+        public static double x = 27;
+        public static double y = 121.25;
+        public static double h = 2.5;
+    }
+    @Config
+    public static class pick_2_adj_right{
+        public static double x = 27;
+        public static double y = 121.25;
+        public static double h = -2.5;
     }
     @Config
     public static class  pick_2_r{
         public static double x = 30;
-        public static double y = 122;
+        public static double y = 121.25;
         public static double h = 0;
     }
+
     @Config
     public static class score2_adj{
-        public static double x = 17;
-        public static double y = 123;
+        public static double x = 15;
+        public static double y = 125;
         public static double h = 135;
     }
     @Config
     public static class pick_3_adj{
-        public static double x = 30;
-        public static double y = 132.5;
+        public static double x = 27.5;
+        public static double y = 130;
         public static double h = 0;
     }
 
@@ -68,8 +82,8 @@ public class PPB {
     }
     @Config
     public static class score_3_adj{
-        public static double x = 17;
-        public static double y = 123;
+        public static double x = 15;
+        public static double y = 125;
         public static double h = 135;
     }
 

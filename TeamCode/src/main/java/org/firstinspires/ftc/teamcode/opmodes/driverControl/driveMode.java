@@ -16,7 +16,6 @@ public class driveMode extends LinearOpMode {
         waitForStart();
         robot.viperSlide.driverControl = true;
         robot.viperSlide.resetEncoder();
-        robot.viperSlide.middleGripper();
         while(opModeIsActive()) {
             telemetry.addData("refresh rate (hz): ",1000/(System.currentTimeMillis() - lastCycleStart + 1));
             lastCycleStart = System.currentTimeMillis();
@@ -55,7 +54,7 @@ public class driveMode extends LinearOpMode {
 
             telemetry.addLine("GRIPPER");
             telemetry.addData( "gripper", robot.gripper.getPosition());
-            telemetry.addData("rotGripper", robot.gripRotate.getPosition());
+
 
             //telemetry.addLine("SWEEPER");
             //telemetry.addData("sweeper pos", robot.sweeper.getPosition());

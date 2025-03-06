@@ -20,8 +20,8 @@ public class ViperSlide {
     private final Gamepad gamepad1;
     private final Gamepad gamepad2;
     private final Servo gripper;
-    private final Servo gripRotate;
-    private final double gripRotateSpeed = 0.01;
+    //private final Servo gripRotate;
+    //private final double gripRotateSpeed = 0.01;
     private boolean debounceGripper = false;
     private boolean last_d_pad_up = false;
     private boolean gripperPosition = false;
@@ -72,13 +72,13 @@ public class ViperSlide {
     //TODO: make final
     public CustomPID rotationHoldPID = new CustomPID(rotPID.kP, rotPID.kI, rotPID.kD);
 
-    public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper, Servo gripRotate) {
+    public ViperSlide(DcMotor slideExt, DcMotor slideRot, Gamepad gamepad1, Gamepad gamepad2, Servo gripper) {
         this.slideExt = slideExt;
         this.slideRot = slideRot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.gripper = gripper;
-        this.gripRotate = gripRotate;
+        //this.gripRotate = gripRotate;
         slideExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideRot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -90,7 +90,7 @@ public class ViperSlide {
         slideExt = HardwareMap.get(DcMotor.class, "slideExt");// max-min = +8k
         slideRot = HardwareMap.get(DcMotor.class, "slideRot"); // max-min = +5k4
         gripper = HardwareMap.get(Servo.class, "gripper");
-        gripRotate = HardwareMap.get(Servo.class, "gripRotate");
+        //gripRotate = HardwareMap.get(Servo.class, "gripRotate");
         gamepad1 = null;
         gamepad2 = null;
 
@@ -185,31 +185,31 @@ public class ViperSlide {
         //right = 0.69
         //left = 0.47
 
-        if(gamepad2.a){
-            //set center position
-            gripRotate.setPosition(0.5594);
-        }
-        if(gamepad2.b){
-            //set right position
-            gripRotate.setPosition(Math.max(gripRotate.getPosition() - gripRotateSpeed, 0.44));
-        }
-        if(gamepad2.x){
-            //set left position
-            gripRotate.setPosition(Math.min(gripRotate.getPosition() + gripRotateSpeed, 0.69));
-        }
+//        if(gamepad2.a){
+//            //set center position
+//            gripRotate.setPosition(0.5594);
+//        }
+//        if(gamepad2.b){
+//            //set right position
+//            gripRotate.setPosition(Math.max(gripRotate.getPosition() - gripRotateSpeed, 0.44));
+//        }
+//        if(gamepad2.x){
+//            //set left position
+//            gripRotate.setPosition(Math.min(gripRotate.getPosition() + gripRotateSpeed, 0.69));
+//        }
 
     }
 
     public void rotateGripperToCenter(){
-        gripRotate.setPosition(0.5594);
+        //gripRotate.setPosition(0.5594);
     }
 
     public void openGripper(){
-        gripper.setPosition(0.48);
+        gripper.setPosition(0.47);
     }
 
     public void closeGripper(){
-        gripper.setPosition(0.80);
+        gripper.setPosition(0.81);
     }
     public void middleGripper(){gripper.setPosition((0.47+0.81)/2);}
 
@@ -246,14 +246,14 @@ public class ViperSlide {
         slideExt.setTargetPosition(extMin+PP_Arm.extHangPost);
         slideExt.setPower(1.0);
         slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 5;
     }
 
     public boolean rotBasket(){
         slideRot.setTargetPosition(rotMin+PPB_Arm.rotScore);
         slideRot.setPower(1.0);
         slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 5;
     }
     public boolean basketRotRetract(){
         slideRot.setTargetPosition(rotMin+PPB_Arm.rotRetract);
@@ -265,7 +265,7 @@ public class ViperSlide {
         slideExt.setTargetPosition(extMin+PPB_Arm.extScore);
         slideExt.setPower(1.0);
         slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 20;
+        return Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 10;
     }
     public boolean rotPickPre(){
         slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPre);
@@ -275,12 +275,18 @@ public class ViperSlide {
     }
     public boolean rotPickPost(){
         slideRot.setTargetPosition(rotMin+PPB_Arm.rotPickPost);
-        slideRot.setPower(1.0);
+        slideRot.setPower(0.5);
         slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
     }
     public boolean rotAwayFromBar(){
         slideRot.setTargetPosition(rotMin+PPP_Arm.rotHangPost);
+        slideRot.setPower(1.0);
+        slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
+    }
+    public boolean rotLock(){
+        slideRot.setTargetPosition(rotMin+PP_Arm.rotLock);
         slideRot.setPower(1.0);
         slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 20;
@@ -319,7 +325,7 @@ public class ViperSlide {
 
         if (driverControl && rotateMacro == RotateMacro.NONE && extendMacro == ExtendMacro.NONE) {
             handleGripper();
-            handleGripRotate();
+            //handleGripRotate();
 
             if(gamepad2.start){
                 teleReset();
@@ -429,165 +435,165 @@ public class ViperSlide {
 
 
     //lift arm up to hang
-    public class RotateUp implements Action {
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideRot.setTargetPosition(rotMin + Arm.rot_hang);
-                slideRot.setPower(1);
-                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class RotateLock implements Action {
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet){
-            if(!initialized){
-                slideRot.setTargetPosition(rotMin + Arm.rot_lock);
-                slideRot.setPower(1);
-                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
-        }
-    }
-
-    //extend arm to hang
-    public class ExtendToHang implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ext_hang);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    //lower arm to grabbing
-    public class RotateHorizontal implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideRot.setTargetPosition(rotMin + Arm.rot_hor);
-                slideRot.setPower(1);
-                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class RotateToDrag implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideRot.setTargetPosition(rotMin + Arm.rot_drag);
-                slideRot.setPower(1);
-                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
-        }
-    }
-
-    //retract arm for Hang
-    public class RetractToHang implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ret_hang);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    //extend arm for grabbing
-    public class ExtendToGrab implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ext_grab);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class SlowExtendToGrab implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ext_grab);
-                slideExt.setPower(Arm.slow_ext_speed);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class ExtendToHome implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ext_home);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class ExtendToDrag implements Action{
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                slideExt.setTargetPosition(extMin + Arm.ext_drag);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                initialized = true;
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
-    public class RetractToDrag implements Action {
-        boolean initialized = false;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if(!initialized){
-                slideExt.setTargetPosition(extMin + Arm.drag_retract);
-                slideExt.setPower(1);
-                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
-        }
-    }
-
+//    public class RotateUp implements Action {
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideRot.setTargetPosition(rotMin + Arm.rot_hang);
+//                slideRot.setPower(1);
+//                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class RotateLock implements Action {
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet){
+//            if(!initialized){
+//                slideRot.setTargetPosition(rotMin + Arm.rot_lock);
+//                slideRot.setPower(1);
+//                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    //extend arm to hang
+//    public class ExtendToHang implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ext_hang);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    //lower arm to grabbing
+//    public class RotateHorizontal implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideRot.setTargetPosition(rotMin + Arm.rot_hor);
+//                slideRot.setPower(1);
+//                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class RotateToDrag implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideRot.setTargetPosition(rotMin + Arm.rot_drag);
+//                slideRot.setPower(1);
+//                slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideRot.getTargetPosition() - slideRot.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    //retract arm for Hang
+//    public class RetractToHang implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ret_hang);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    //extend arm for grabbing
+//    public class ExtendToGrab implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ext_grab);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class SlowExtendToGrab implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ext_grab);
+//                slideExt.setPower(Arm.slow_ext_speed);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class ExtendToHome implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ext_home);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class ExtendToDrag implements Action{
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if (!initialized) {
+//                slideExt.setTargetPosition(extMin + Arm.ext_drag);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                initialized = true;
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
+//    public class RetractToDrag implements Action {
+//        boolean initialized = false;
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if(!initialized){
+//                slideExt.setTargetPosition(extMin + Arm.drag_retract);
+//                slideExt.setPower(1);
+//                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            }
+//            return Math.abs(slideExt.getTargetPosition() - slideExt.getCurrentPosition()) > 10;
+//        }
+//    }
+//
 //    public class CloseGripper implements Action {
 //        @Override
 //        public boolean run(@NonNull TelemetryPacket packet) {
@@ -603,40 +609,40 @@ public class ViperSlide {
 //            return false;
 //        }
 //    }
-
-    public Action rotateUp(){
-        return new RotateUp();
-    }
-    public Action rotateHorizontal(){
-        return new RotateHorizontal();
-    }
-    public Action rotateToDrag(){
-        return new RotateToDrag();
-    }
-    public Action extendToHang(){
-        return new ExtendToHang();
-    }
-    public Action retractToHang(){
-        return new RetractToHang();
-    }
-    public Action extendToGrab(){
-        return new ExtendToGrab();
-    }
-    public Action extendToDrag(){
-        return new ExtendToDrag();
-    }
-//    public Action openGripper(){
+//
+//    public Action rotateUp(){
+//        return new RotateUp();
+//    }
+//    public Action rotateHorizontal(){
+//        return new RotateHorizontal();
+//    }
+//    public Action rotateToDrag(){
+//        return new RotateToDrag();
+//    }
+//    public Action extendToHang(){
+//        return new ExtendToHang();
+//    }
+//    public Action retractToHang(){
+//        return new RetractToHang();
+//    }
+//    public Action extendToGrab(){
+//        return new ExtendToGrab();
+//    }
+//    public Action extendToDrag(){
+//        return new ExtendToDrag();
+//    }
+//    public Action openGripperAction(){
 //        return new OpenGripper();
 //    }
-//    public Action closeGripper(){
+//    public Action closeGripperAction(){
 //        return new CloseGripper();
 //    }
-    public Action extendToHome(){
-        return new ExtendToHome();
-    }
-    public Action rotateLock(){ return new RotateLock();}
-    public Action slowExtendToGrab(){return new SlowExtendToGrab();}
-    public Action retractToDrag(){return new RetractToDrag();}
+//    public Action extendToHome(){
+//        return new ExtendToHome();
+//    }
+//    public Action rotateLock(){ return new RotateLock();}
+//    public Action slowExtendToGrab(){return new SlowExtendToGrab();}
+//    public Action retractToDrag(){return new RetractToDrag();}
     @Config
     public static class Arm{
         public static int ext_hang = 1500;
@@ -659,15 +665,16 @@ public class ViperSlide {
 
     @Config
     public static class PP_Arm{
-        public static int rotHang = 2600;
-        public static int extHangPre = 1100;
-        public static int extHangPost = 480;
+        public static int rotHang = 2650;
+        public static int rotLock = 2500;
+        public static int extHangPre = 1300;
+        public static int extHangPost = 580;
     }
 
     @Config
     public static class PPB_Arm{
-        public static int rotScore = 3229;
-        public static int rotRetract = 3400;
+        public static int rotScore = 3500;
+        public static int rotRetract = 3700;
         public static int extScore = 3930;
         public static int extPick = 1700;
         public static int rotPickPre = 1000;
@@ -680,8 +687,8 @@ public class ViperSlide {
         public static int extHangPre = 1100;
         public static int extHangPost = 480;
         public static int rotHangPost = 3100;
-        public static int rotHorPre = 800;
-        public static int extHor = 600;
+        public static int rotHorPre = 1000;
+        public static int extHor = 650;
         public static int rotHorPost = 1200;
     }
 

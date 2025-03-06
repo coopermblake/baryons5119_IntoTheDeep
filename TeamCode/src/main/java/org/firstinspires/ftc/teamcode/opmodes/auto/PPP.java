@@ -8,13 +8,18 @@ public class PPP {
     //@Config
     public static class delays{
         public static double start_raise = 1;
-        public static double score_pre = 1;
-        public static double score_post = 1;
+        public static double score_pre = 0.2;
+        public static double score_post = 0.2;
         public static double grab_pre = 1;
         public static double grab_post = 1;
-        public static double score_raise = 5;
+        public static double score_raise = 3;
+        public static double score1_timeout = 2;
     }
-
+    //@Config
+    public static class zpams{
+        public static double score2 = 1;
+        public static double score3 = 1;
+    }
     //@Config
     public static class start{
         public static double x = 8;
@@ -23,13 +28,13 @@ public class PPP {
     }
     //@Config
     public static class score1_adj{
-        public static double x = 36;
+        public static double x = 35;
         public static double y = 63;
         public static double h = 0;
     }
     //@Config
     public static class score1_r{
-        public static double x = 36;
+        public static double x = 35;
         public static double y = 63;
         public static double h = 0;
     }
@@ -81,24 +86,30 @@ public class PPP {
     }
     //@Config
     public static class score2_adj{
-        public static double x = 36;
-        public static double y = 64;
+        public static double x = 35;
+        public static double y = 68;
         public static double h = 0;
     }
     //@Config
     public static class score2_c1{
-        public static double x = 12;
+        public static double x = 8;
         public static double y = 70;
     }
     //@Config
+    public static class score2_a{
+        public static double x = 28;
+        public static double y = 68;
+        public static double h = 0;
+    }
+    //@Config
     public static class score2_r{
-        public static double x = 36;
-        public static double y = 64;
+        public static double x = 35;
+        public static double y = 68;
         public static double h = 0;
     }
     //@Config
     public static class pickup3_adj{
-        public static double x = 12;
+        public static double x = 13.5;
         public static double y = 27.5;
         public static double h = 180;
     }
@@ -109,14 +120,14 @@ public class PPP {
     }
     //@Config
     public static class pickup3_r{
-        public static double x = 12;
+        public static double x = 13.25;
         public static double y = 27.5;
         public static double h = 180;
     }
     //@Config
     public static class score3_adj{
         public static double x = 36;
-        public static double y = 62;
+        public static double y = 65;
         public static double h = 0;
     }
     //@Config
@@ -125,9 +136,15 @@ public class PPP {
         public static double y = 70;
     }
     //@Config
+    public static class score3_a{
+        public static double x = 25;
+        public static double y = 65;
+        public static double h = 0;
+    }
+    //@Config
     public static class score3_r{
         public static double x = 36;
-        public static double y = 62;
+        public static double y = 65;
         public static double h = 0;
     }
     //@Config
