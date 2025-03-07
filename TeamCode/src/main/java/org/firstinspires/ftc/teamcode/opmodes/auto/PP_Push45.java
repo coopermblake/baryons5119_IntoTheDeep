@@ -60,17 +60,11 @@ public class PP_Push45 extends OpMode {
                 .addPath(new BezierLine(makePoint(allign3_r.class), makePoint(push3_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(allign3_r.h))
 
-                .addPath(new BezierCurve(makePoint(push3_r.class), makePoint(allign4_c1.class), makePoint(allign4_adj.class)))
-                .setConstantHeadingInterpolation(Math.toRadians(push3_r.h))
-                .setZeroPowerAccelerationMultiplier(zpams.allign4)
-                .setPathEndTimeoutConstraint(timeouts.allign4)
-                .addPath(new BezierLine(makePoint(allign4_r.class), makePoint(push4_adj.class)))
-                .setConstantHeadingInterpolation(Math.toRadians(allign4_r.h))
                 .build();
         
         score2 = follower.pathBuilder()
-                .addPath(new BezierLine(makePoint(push4_r.class), makePoint(score2_a.class)))
-                .setLinearHeadingInterpolation(Math.toRadians(push4_r.h), Math.toRadians(score2_a.h))
+                .addPath(new BezierLine(makePoint(push3_r.class), makePoint(score2_a.class)))
+                .setLinearHeadingInterpolation(Math.toRadians(push3_r.h), Math.toRadians(score2_a.h))
                 .addPath(new BezierLine(makePoint(score2_a.class), makePoint(score2_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(score2_a.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score2)
@@ -275,7 +269,7 @@ public class PP_Push45 extends OpMode {
                 if(viperSlide.rotHorPost()){
                     viperSlide.rotHang();
                     viperSlide.extPreHang();
-                    follower.followPath(score2);
+                    follower.followPath(score3);
                     setPathState(33);
                 }
             case 33:
@@ -345,7 +339,7 @@ public class PP_Push45 extends OpMode {
                 if(viperSlide.rotHorPost()){
                     viperSlide.rotHang();
                     viperSlide.extPreHang();
-                    follower.followPath(score2);
+                    follower.followPath(score4);
                     setPathState(43);
                 }
             case 43:
@@ -390,66 +384,66 @@ public class PP_Push45 extends OpMode {
                 //after slight delay, extend arm to grab specimen 5
                 if(getStepTime() > delays.grab_pre){
                     viperSlide.extHor();
-                    setPathState(50);
+                    setPathState(-1);
                 }
                 break;
 
             //55555555555555555555555555555555555555555555555555555555
-            case 50:
-                //after arm is extended, grab specimen 5
-                if(viperSlide.extHor()){
-                    viperSlide.closeGripper();
-                    setPathState(51);
-                }
-                break;
-            case 51:
-                //after slight delay, slightly raise arm up
-                if(getStepTime() > delays.grab_post){
-                    viperSlide.rotHorPost();
-                    setPathState(52);
-                }
-                break;
-            case 52:
-                //after arm is raised, rotate arm up, extend, and drive to bar
-                viperSlide.closeGripper();
-                if(viperSlide.rotHorPost()){
-                    viperSlide.rotHang();
-                    viperSlide.extPreHang();
-                    follower.followPath(score2);
-                    setPathState(53);
-                }
-            case 53:
-                //after path is done, retract and rotate down to hang
-                viperSlide.closeGripper();
-                if(!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang()){
-                    viperSlide.extPostHang();
-                    viperSlide.rotLock();
-                    setPathState(54);
-                }
-                break;
-            case 54:
-                //after slight delay, open gripper
-                if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
-                    viperSlide.openGripper();
-                    setPathState(55);
-                }
-                break;
-            case 55:
-                //after slight delay, rotate arm back away from bar
-                if(getStepTime() > delays.score_post){
-                    viperSlide.rotAwayFromBar();
-                    setPathState(56);
-                }
-                break;
-            case 56:
-                //after slight delay, rotate down to horizontal and retract to home drive to OZ
-                if (viperSlide.rotAwayFromBar()) {
-                    viperSlide.extHome();
-                    viperSlide.rotHorPre();
-                    follower.followPath(pick4);
-                    setPathState(-1);
-                }
-                break;
+//            case 50:
+//                //after arm is extended, grab specimen 5
+//                if(viperSlide.extHor()){
+//                    viperSlide.closeGripper();
+//                    setPathState(51);
+//                }
+//                break;
+//            case 51:
+//                //after slight delay, slightly raise arm up
+//                if(getStepTime() > delays.grab_post){
+//                    viperSlide.rotHorPost();
+//                    setPathState(52);
+//                }
+//                break;
+//            case 52:
+//                //after arm is raised, rotate arm up, extend, and drive to bar
+//                viperSlide.closeGripper();
+//                if(viperSlide.rotHorPost()){
+//                    viperSlide.rotHang();
+//                    viperSlide.extPreHang();
+//                    follower.followPath(score2);
+//                    setPathState(53);
+//                }
+//            case 53:
+//                //after path is done, retract and rotate down to hang
+//                viperSlide.closeGripper();
+//                if(!follower.isBusy() && viperSlide.rotHang() && viperSlide.extPreHang()){
+//                    viperSlide.extPostHang();
+//                    viperSlide.rotLock();
+//                    setPathState(54);
+//                }
+//                break;
+//            case 54:
+//                //after slight delay, open gripper
+//                if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
+//                    viperSlide.openGripper();
+//                    setPathState(55);
+//                }
+//                break;
+//            case 55:
+//                //after slight delay, rotate arm back away from bar
+//                if(getStepTime() > delays.score_post){
+//                    viperSlide.rotAwayFromBar();
+//                    setPathState(56);
+//                }
+//                break;
+//            case 56:
+//                //after slight delay, rotate down to horizontal and retract to home drive to OZ
+//                if (viperSlide.rotAwayFromBar()) {
+//                    viperSlide.extHome();
+//                    viperSlide.rotHorPre();
+//                    follower.followPath(pick4);
+//                    setPathState(-1);
+//                }
+//                break;
 
         }
     }

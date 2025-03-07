@@ -118,7 +118,7 @@ public class PP45 {
     }
     @Config
     public static class push3_adj{
-        public static double x = 30;
+        public static double x = 13;
         public static double y = 16;
         public static double h = 180;
     }
