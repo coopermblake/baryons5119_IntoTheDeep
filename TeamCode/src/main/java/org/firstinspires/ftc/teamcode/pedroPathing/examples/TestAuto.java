@@ -4,12 +4,13 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.*;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "test auto")
+@Disabled//(name = "test auto")
 public class TestAuto extends OpMode {
     private Follower follower;
     private final Pose startPose = new Pose(0,0,Math.toRadians(0));

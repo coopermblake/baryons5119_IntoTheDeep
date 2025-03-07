@@ -7,19 +7,32 @@ import com.pedropathing.pathgen.Point;
 public class PP45 {
     @Config
     public static class delays{
-        public static double start_raise = 1;
+        public static double start_raise = 0.6;
         public static double score_pre = 0;
-        public static double score_post = 0.5;
-        public static double grab_pre = 1;
+        public static double score_post = 0.1;
+        public static double grab_pre = 0;
         public static double grab_post = 0.6;
     }
     @Config
+    public static class timeouts{
+        public static double allign4 = 3;
+        public static double score1 = 1.8;
+        public static double score2 = 3;
+        public static double score3 = 2.5;
+        public static double score4 = 2.5;
+        public static double score5 = 2.5;
+    }
+    @Config
     public static class zpams{
-        public static double score1 = 1;
-        public static double score2 = 1;
-        public static double score3 = 1;
-        public static double score4 = 1;
-        public static double score5 = 1;
+        public static double score1 = 5;
+        public static double score2 = 5;
+        public static double score3 = 5;
+        public static double score4 = 5;
+        public static double score5 = 5;
+        public static double pick3 = 5;
+        public static double pick4 = 4;
+        public static double pick5 = 4;
+        public static double allign4 = 4;
 
     }
     @Config
@@ -76,7 +89,7 @@ public class PP45 {
     }
     @Config
     public static class push2_adj{
-        public static double x = 18;
+        public static double x = 30;
         public static double y = 27.5;
         public static double h = 180;
     }
@@ -90,7 +103,7 @@ public class PP45 {
     public static class allign3_adj{
         public static double x = 61;
         public static double y = 16;
-        public static double h = 0;
+        public static double h = 180;
     }
     @Config
     public static class allign3_c1{
@@ -101,47 +114,49 @@ public class PP45 {
     public static class allign3_r {
         public static double x = 61;
         public static double y = 16;
-        public static double h = 0;
+        public static double h = 180;
     }
+    @Config
     public static class push3_adj{
-        public static double x = 12;
+        public static double x = 30;
         public static double y = 16;
-        public static double h = 0;
+        public static double h = 180;
     }
     @Config
     public static class push3_r{
         public static double x = 12;
         public static double y = 16;
-        public static double h = 0;
+        public static double h = 180;
     }
 
     @Config
     public static class allign4_adj{
         public static double x = 61;
         public static double y = 9;
-        public static double h = 0;
+        public static double h = 180;
     }
     @Config
     public static class allign4_c1{
-        public static double x = 64;
-        public static double y = 13;
+        public static double x = 72;
+        public static double y = 10;
     }
     @Config
     public static class allign4_r {
         public static double x = 61;
-        public static double y = 9;
-        public static double h = 0;
+        public static double y = 9.5;
+        public static double h = 180;
     }
+    @Config
     public static class push4_adj{
-        public static double x = 12;
-        public static double y = 9;
-        public static double h = 0;
+        public static double x = 13;
+        public static double y = 9.5;
+        public static double h = 180;
     }
     @Config
     public static class push4_r{
         public static double x = 12;
         public static double y = 9;
-        public static double h = 0;
+        public static double h = 180;
     }
 
     @Config
@@ -180,9 +195,10 @@ public class PP45 {
         public static double y = 68;
         public static double h = 0;
     }
+    @Config
     public static class pickup3{
-        public static double x = 12;
-        public static double y = 30;
+        public static double x = 13;
+        public static double y = 32;
         public static double h = 180;
     }
     @Config
@@ -190,9 +206,10 @@ public class PP45 {
         public static double x = 12;
         public static double y = 70;
     }
+    @Config
     public static class score3_adj{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 71;
         public static double h = 0;
     }
     @Config
@@ -203,17 +220,18 @@ public class PP45 {
     @Config
     public static class score3_a{
         public static double x = 28;
-        public static double y = 68;
+        public static double y = 71;
         public static double h = 0;
     }
     @Config
     public static class score3_r{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 71;
         public static double h = 0;
     }
+    @Config
     public static class pickup4{
-        public static double x = 12;
+        public static double x = 13;
         public static double y = 30;
         public static double h = 180;
     }
@@ -222,9 +240,10 @@ public class PP45 {
         public static double x = 12;
         public static double y = 70;
     }
+    @Config
     public static class score4_adj{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 75;
         public static double h = 0;
     }
     @Config
@@ -235,17 +254,18 @@ public class PP45 {
     @Config
     public static class score4_a{
         public static double x = 28;
-        public static double y = 68;
+        public static double y = 75;
         public static double h = 0;
     }
     @Config
     public static class score4_r{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 75;
         public static double h = 0;
     }
+    @Config
     public static class pickup5{
-        public static double x = 12;
+        public static double x = 13;
         public static double y = 30;
         public static double h = 180;
     }
@@ -254,9 +274,10 @@ public class PP45 {
         public static double x = 12;
         public static double y = 70;
     }
+    @Config
     public static class score5_adj{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 78;
         public static double h = 0;
     }
     @Config
@@ -267,13 +288,13 @@ public class PP45 {
     @Config
     public static class score5_a{
         public static double x = 28;
-        public static double y = 68;
+        public static double y = 78;
         public static double h = 0;
     }
     @Config
     public static class score5_r{
         public static double x = 35;
-        public static double y = 68;
+        public static double y = 78;
         public static double h = 0;
     }
 

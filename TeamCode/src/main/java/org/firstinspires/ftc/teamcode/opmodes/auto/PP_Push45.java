@@ -42,6 +42,7 @@ public class PP_Push45 extends OpMode {
                 .addPath(new BezierLine(makePoint(start.class), makePoint(score1_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(start.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score1)
+                .setPathEndTimeoutConstraint(timeouts.score1)
                 .build();
 
         push = follower.pathBuilder()
@@ -61,24 +62,25 @@ public class PP_Push45 extends OpMode {
 
                 .addPath(new BezierCurve(makePoint(push3_r.class), makePoint(allign4_c1.class), makePoint(allign4_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(push3_r.h))
+                .setZeroPowerAccelerationMultiplier(zpams.allign4)
+                .setPathEndTimeoutConstraint(timeouts.allign4)
                 .addPath(new BezierLine(makePoint(allign4_r.class), makePoint(push4_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(allign4_r.h))
-
-                .addPath(new BezierLine(makePoint(push4_r.class), makePoint(pickup_2.class)))
-                .setConstantHeadingInterpolation(Math.toRadians(push4_r.h))
                 .build();
         
         score2 = follower.pathBuilder()
-                .addPath(new BezierLine(makePoint(pickup_r.class), makePoint(score2_a.class)))
-                .setLinearHeadingInterpolation(Math.toRadians(pickup_r.h), Math.toRadians(score2_a.h))
+                .addPath(new BezierLine(makePoint(push4_r.class), makePoint(score2_a.class)))
+                .setLinearHeadingInterpolation(Math.toRadians(push4_r.h), Math.toRadians(score2_a.h))
                 .addPath(new BezierLine(makePoint(score2_a.class), makePoint(score2_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(score2_a.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score2)
+                .setPathEndTimeoutConstraint(timeouts.score2)
                 .build();
 
         pick3 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score2_r.class), makePoint(pickup3_c1.class), makePoint(pickup3.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(score2_r.h), Math.toRadians(pickup3.h))
+                .setZeroPowerAccelerationMultiplier(zpams.pick3)
                 .build();
 
         score3 = follower.pathBuilder()
@@ -87,11 +89,13 @@ public class PP_Push45 extends OpMode {
                 .addPath(new BezierLine(makePoint(score3_a.class), makePoint(score3_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(score3_a.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score3)
+                .setPathEndTimeoutConstraint(timeouts.score3)
                 .build();
 
         pick4 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score3_r.class), makePoint(pickup4_c1.class), makePoint(pickup4.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(score3_r.h), Math.toRadians(pickup4.h))
+                .setZeroPowerAccelerationMultiplier(zpams.pick4)
                 .build();
 
         score4 = follower.pathBuilder()
@@ -100,11 +104,13 @@ public class PP_Push45 extends OpMode {
                 .addPath(new BezierLine(makePoint(score4_a.class), makePoint(score4_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(score4_a.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score4)
+                .setPathEndTimeoutConstraint(timeouts.score4)
                 .build();
 
         pick5 = follower.pathBuilder()
                 .addPath(new BezierCurve(makePoint(score4_r.class), makePoint(pickup5_c1.class), makePoint(pickup5.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(score4_r.h), Math.toRadians(pickup5.h))
+                .setZeroPowerAccelerationMultiplier(zpams.pick5)
                 .build();
 
         score5 = follower.pathBuilder()
@@ -113,6 +119,7 @@ public class PP_Push45 extends OpMode {
                 .addPath(new BezierLine(makePoint(score5_a.class), makePoint(score5_adj.class)))
                 .setConstantHeadingInterpolation(Math.toRadians(score5_a.h))
                 .setZeroPowerAccelerationMultiplier(zpams.score5)
+                .setPathEndTimeoutConstraint(timeouts.score5)
                 .build();
 
     }
@@ -144,7 +151,7 @@ public class PP_Push45 extends OpMode {
                 //after slight delay, open gripper
                 if(viperSlide.extPostHang() && getStepTime() > delays.score_pre){
                     viperSlide.openGripper();
-                    setPathState(4);
+                    setPathState(10);
                 }
                 break;
             //1111111111111111111111111111111111111111111111111111111    
@@ -152,7 +159,7 @@ public class PP_Push45 extends OpMode {
                 //after slight delay, rotate arm back away from bar
                 if(getStepTime() > delays.score_post){
                     viperSlide.rotAwayFromBar();
-                    setPathState(5);
+                    setPathState(11);
                 }
                 break;
             case 11:
@@ -376,7 +383,7 @@ public class PP_Push45 extends OpMode {
             case 47:
                 //check if all is good
                 if(!follower.isBusy() && viperSlide.extHome() && viperSlide.rotHorPre()){
-                    setPathState(28);
+                    setPathState(48);
                 }
                 break;
             case 48:

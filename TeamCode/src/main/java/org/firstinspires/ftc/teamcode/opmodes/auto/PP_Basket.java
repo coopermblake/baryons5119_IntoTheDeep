@@ -19,7 +19,7 @@ public class PP_Basket extends OpMode {
     private Follower follower;
     ViperSlide viperSlide;
 
-    private PathChain score1, pickup2, score2, pickup3, score3;
+    private PathChain score1, pickup2, score2, pickup3, score3, parking;
 
     private int pathState;
     private long pathStart;
@@ -52,6 +52,11 @@ public class PP_Basket extends OpMode {
                 .addPath(new BezierLine(makePoint(pick_3_r.class), makePoint(score_3_adj.class)))
                 .setLinearHeadingInterpolation(Math.toRadians(pick_3_r.h), Math.toRadians(score_3_adj.h))
                 .build();
+        parking = follower.pathBuilder()
+                .addPath(new BezierCurve(makePoint(basket_r.class), makePoint(park_c1.class), makePoint(park.class)))
+                .setLinearHeadingInterpolation(Math.toRadians(basket_r.h), Math.toRadians(park.h))
+                .setZeroPowerAccelerationMultiplier(zpams.park)
+                .build();
     }
 
     public void autonomousPathUpdate(){
@@ -59,16 +64,19 @@ public class PP_Basket extends OpMode {
             case 0:
                 pathStart = System.nanoTime();
                 stepStart = System.nanoTime();
+                viperSlide.closeGripper();
                 setPathState(1);
                 break;
             case 1:
                 //drive to basket
                 viperSlide.rotBasket();
+                viperSlide.closeGripper();
                 follower.followPath(score1, true);
                 setPathState(2);
                 break;
             case 2:
                 //extend up to basket
+                viperSlide.closeGripper();
                 if(!follower.isBusy() && viperSlide.rotBasket()){
                     viperSlide.extBasket();
                     setPathState(3);
@@ -129,6 +137,7 @@ public class PP_Basket extends OpMode {
                 if(getStepTime() > delays.pick){
                     viperSlide.rotBasket();
                     viperSlide.extHome();
+                    viperSlide.closeGripper();
                     if(getStepTime() > delays.pick + delays.score_move){
                         follower.followPath(score2, true);
                         setPathState(11);
@@ -137,6 +146,7 @@ public class PP_Basket extends OpMode {
                 break;
             case 11:
                 //extend to basket
+                viperSlide.closeGripper();
                 if (!follower.isBusy() && viperSlide.rotBasket()) {
                     viperSlide.extBasket();
                     setPathState(12);
@@ -197,6 +207,7 @@ public class PP_Basket extends OpMode {
                 if(getStepTime() > delays.pick) {
                     viperSlide.rotBasket();
                     viperSlide.extHome();
+                    viperSlide.closeGripper();
                     if (getStepTime() > delays.pick + delays.score_move){
                         follower.followPath(score3, true);
                         setPathState(20);
@@ -205,6 +216,7 @@ public class PP_Basket extends OpMode {
                 break;
             case 20:
                 //extend to basket
+                viperSlide.closeGripper();
                 if (!follower.isBusy() && viperSlide.rotBasket()) {
                     viperSlide.extBasket();
                     setPathState(21);
@@ -225,66 +237,68 @@ public class PP_Basket extends OpMode {
                 }
                 break;
             case 23:
-                //retract slide
+                //retract slide and drive to bar to park
                 if(viperSlide.basketRotRetract()){
                     viperSlide.extHome();
-                    setPathState(24);
-                }
-                break;
-            case 24:
-                //lower slide and drive to pickup second sample
-                if(viperSlide.extHome()){
-                    viperSlide.rotPickPre();
-                    follower.followPath(pickup3, true);
-                    setPathState(25);
-                }
-                break;
-            case 25:
-                //extend slide to pickup position
-                if(!follower.isBusy() && viperSlide.rotPickPre()){
-                    viperSlide.extPick();
-                    setPathState(26);
-                }
-                break;
-            case 26:
-                //rotate down onto sample 2
-                if(viperSlide.extPick()){
-                    viperSlide.rotPickPost();
-                    setPathState(27);
-                }
-                break;
-            case 27:
-                //grab sample
-                if(viperSlide.rotPickPost()){
-                    viperSlide.closeGripper();
-                    setPathState(28);
-                }
-                break;
-            case 28:
-                //retract and rotate up and drive to basket
-                if(getStepTime() > delays.pick){
-                    viperSlide.rotBasket();
-                    viperSlide.extHome();
-                    if(getStepTime() > delays.pick + delays.score_move){
-                        follower.followPath(score3, true);
-                        setPathState(29);
-                    }
-                }
-                break;
-            case 29:
-                //extend to basket
-                if (!follower.isBusy() && viperSlide.rotBasket()) {
-                    viperSlide.extBasket();
-                    setPathState(30);
-                }
-                break;
-            case 30:
-                //release sample
-                if(getStepTime() > delays.release_pre && viperSlide.extBasket()){
-                    viperSlide.openGripper();
+                    follower.followPath(parking);
+                    viperSlide.rotPark();
                     setPathState(-1);
                 }
                 break;
+//            case 24:
+//                //lower slide and drive to pickup second sample
+//                if(viperSlide.extHome()){
+//                    viperSlide.rotPickPre();
+//                    follower.followPath(pickup3, true);
+//                    setPathState(25);
+//                }
+//                break;
+//            case 25:
+//                //extend slide to pickup position
+//                if(!follower.isBusy() && viperSlide.rotPickPre()){
+//                    viperSlide.extPick();
+//                    setPathState(26);
+//                }
+//                break;
+//            case 26:
+//                //rotate down onto sample 2
+//                if(viperSlide.extPick()){
+//                    viperSlide.rotPickPost();
+//                    setPathState(27);
+//                }
+//                break;
+//            case 27:
+//                //grab sample
+//                if(viperSlide.rotPickPost()){
+//                    viperSlide.closeGripper();
+//                    setPathState(28);
+//                }
+//                break;
+//            case 28:
+//                //retract and rotate up and drive to basket
+//                if(getStepTime() > delays.pick){
+//                    viperSlide.rotBasket();
+//                    viperSlide.extHome();
+//                    if(getStepTime() > delays.pick + delays.score_move){
+//                        follower.followPath(score3, true);
+//                        setPathState(29);
+//                    }
+//                }
+//                break;
+//            case 29:
+//                //extend to basket
+//                if (!follower.isBusy() && viperSlide.rotBasket()) {
+//                    viperSlide.extBasket();
+//                    setPathState(30);
+//                }
+//                break;
+//            case 30:
+//                //release sample
+//                if(getStepTime() > delays.release_pre && viperSlide.extBasket()){
+//                    viperSlide.openGripper();
+//                    setPathState(-1);
+//                }
+//                break;
         }
     }
 
