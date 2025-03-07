@@ -111,11 +111,11 @@ public class Drivetrain {
 //        } else if (gamepad2.dpad_down) {
 //            inputY -= 0.25;
 //        }
-//        if (gamepad2.right_bumper) {
-//            inputRot += 0.125;
-//        } else if (gamepad2.left_bumper) {
-//            inputRot -= 0.125;
-//        }
+        if (gamepad2.right_bumper) {
+            inputRot += 0.125;
+        } else if (gamepad2.left_bumper) {
+            inputRot -= 0.125;
+        }
 
 
 
