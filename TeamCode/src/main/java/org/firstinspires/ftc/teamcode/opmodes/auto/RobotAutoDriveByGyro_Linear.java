@@ -166,7 +166,7 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
         robot.frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.imu.resetYaw();
+        robot.autoIMU.resetYaw();
 
         // Step through each leg of the path
         // Notes: Reverse movement is obtained by setting a negative distance (not speed)
@@ -467,7 +467,7 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
     public double getHeading() {
         try {
             // Retrieve the yaw (heading) angle from the IMU
-            YawPitchRollAngles orientation = robot.imu.getRobotYawPitchRollAngles();
+            YawPitchRollAngles orientation = robot.autoIMU.getRobotYawPitchRollAngles();
             return orientation.getYaw(AngleUnit.DEGREES);
         } catch (Exception e) {
             // Handle any errors (e.g., if the IMU is not initialized)

@@ -70,7 +70,7 @@ public class testMode extends LinearOpMode {
             telemetry.addData("slideExt encoder value:", robot.slideExt.getCurrentPosition());
             telemetry.addData("slideRot encoder value:", robot.slideRot.getCurrentPosition());
             telemetry.addData("gripper encoder value:" , robot.gripper.getPosition());
-            telemetry.addData("imu yaw", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("imu yaw", robot.autoIMU.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.update();
 
             if (robot.gamepad1.a) {

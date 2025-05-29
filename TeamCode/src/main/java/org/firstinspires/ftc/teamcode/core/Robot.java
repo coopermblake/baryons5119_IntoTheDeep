@@ -60,7 +60,7 @@ public class Robot {
         teleOpIMU.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(LogoFacingDirection.UP,
                 UsbFacingDirection.LEFT)));
 
-        drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, imu);
+        drivetrain = new Drivetrain(backLeft, backRight, frontLeft, frontRight, teleOpIMU);
         viperSlide = new ViperSlide(slideExt, slideRot, gamepad1, gamepad2, gripper);
 
     }
