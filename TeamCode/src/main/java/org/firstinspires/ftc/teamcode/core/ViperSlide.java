@@ -14,6 +14,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.lib.CustomPID;
 
+import kotlin.math.UMathKt;
+
 public class ViperSlide {
     public final DcMotor slideExt;
     public final DcMotor slideRot;
@@ -116,7 +118,8 @@ public class ViperSlide {
        }
 
         if(inputRot == 0 && rotateMacro == RotateMacro.NONE && (System.nanoTime()-holdDelay)>0.5){
-            double power = rotationHoldPID.cycleController(lastRotPosition, slideExt.getCurrentPosition());
+            //double power = rotationHoldPID.cycleController(lastRotPosition, slideExt.getCurrentPosition());
+            double power = calculateHoldPower();
             inputRot = Range.clip(power, -1.0, 1.0);
         }
         else{
@@ -326,6 +329,7 @@ public class ViperSlide {
         double rotPower;
         //TODO: make separate funcions to allow macroing one while manual the other
 
+        handleMacros(gamepad2);
         //handleRotateMacros(gamepad2);
         //handleExtendMacros(gamepad2);
 
@@ -355,27 +359,106 @@ public class ViperSlide {
             moveSlide(rotPower, extPower);
         }
     }
+    private void handleMacros(Gamepad gamepad2) {
+        //TODO: make these values based on the Arm config class
+        if (gamepad2.dpad_up) {
+            //rotate up
+            rotateMacro = RotateMacro.GOING_UP;
+            //slideRot.setTargetPosition(rotMin - Arm.tele_rot_hang);
+            //slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //slideRot.setPower(1);
+
+            //check for rotate up finish
+            while (!(Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 15)) {
+                rotateMacro = RotateMacro.NONE;
+                slideRot.setPower(squidController(rotMin - Arm.tele_rot_hang));
+            }
+
+            extendMacro = ExtendMacro.HANG;
+            if (rotateMacro == RotateMacro.NONE) {
+                //to make droop counter work
+                slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                slideRot.setPower(0);
+                //start extension for hang
+                slideExt.setTargetPosition(extMin + Arm.ext_hang);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideExt.setPower(1.0);
+            }
+            //check if extend hang is done
+            while (!(Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 15)) {
+                extendMacro = ExtendMacro.NONE;
+            }
+        }
+
+        if (gamepad2.dpad_down) { //pick up from human player
+            rotateMacro = RotateMacro.GOING_HORIZONTAL;
+            slideRot.setTargetPosition(rotMin - Arm.rot_hor);
+            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideRot.setPower(1);
+            while (!(Math.abs(slideRot.getCurrentPosition() - slideRot.getTargetPosition()) < 15)) {
+                rotateMacro = RotateMacro.NONE;
+            }
+            if (rotateMacro == RotateMacro.NONE) {
+                slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                slideRot.setPower(0);
+
+                extendMacro = ExtendMacro.MIN;
+                slideExt.setTargetPosition(extMin);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideExt.setPower(1.0);
+            }
+            while (!(Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 15)) {
+                extendMacro = ExtendMacro.NONE;
+            }
+            if (extendMacro == ExtendMacro.NONE) {
+                gripper.setPosition(0.47);
+            }
+        }
+
+        if(gamepad2.dpad_right) {
+            extendMacro = ExtendMacro.GRAB;
+            //start extending when rotation reaches horizontal
+            if(rotateMacro == RotateMacro.NONE){
+                slideExt.setTargetPosition(extMin + Arm.ext_grab);
+                slideExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideExt.setPower(0.8);
+                slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                slideRot.setPower(0);
+            }
+            while (!(Math.abs(slideExt.getCurrentPosition() - slideExt.getTargetPosition()) < 15)) {
+                extendMacro = ExtendMacro.NONE;
+            }
+            if (extendMacro == ExtendMacro.NONE) {
+                gripper.setPosition(0.81);
+            }
+        }
+
+        if(gamepad2.dpad_left || gamepad2.dpad_right || (Math.abs(slideRot.getCurrentPosition()  - slideRot.getTargetPosition()) < 10)
+                || gamepad2.back) {
+            rotateMacro = RotateMacro.NONE;
+            slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideRot.setPower(0);
+        }
+
+        if(gamepad2.dpad_left || gamepad2.dpad_right || (Math.abs(slideExt.getCurrentPosition()  - slideExt.getTargetPosition()) < 10)
+                || gamepad2.back) {
+            extendMacro = ExtendMacro.NONE;
+            slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slideExt.setPower(0);
+        }
+    }
 
     private void handleRotateMacros(Gamepad gamepad2){
-
-
         //up for up, down for down, right for horizontal, left for stop
         //TODO: make these values based on the Arm config class
-
-
-        if (gamepad2.y) {
+        if (gamepad2.dpad_up) {
             rotateMacro = RotateMacro.GOING_UP;
             slideRot.setTargetPosition(rotMin - Arm.tele_rot_hang);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideRot.setPower(1);
         }
-//        if (gamepad2.dpad_down) {
-//            rotateMacro = RotateMacro.GOING_DOWN;
-//            slideRot.setTargetPosition(rotMin-Arm.tele_rot_sub);
-//            slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            slideRot.setPower(1);
-//        }
-        if(gamepad2.a){
+
+        if(gamepad2.dpad_down){ //pick up from human player
             rotateMacro = RotateMacro.GOING_HORIZONTAL;
             slideRot.setTargetPosition(rotMin-Arm.rot_hor);
             slideRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -388,8 +471,6 @@ public class ViperSlide {
             slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideRot.setPower(0);
         }
-
-
     }
 
     private void handleExtendMacros(){
@@ -436,9 +517,25 @@ public class ViperSlide {
             slideExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             slideExt.setPower(0);
         }
-
     }
 
+    public double angleCalculate(){
+        int angleInTicks = -(slideRot.getCurrentPosition() - rotMin)/3;
+        double angleInDegree = (angleInTicks/3895.9) * 360;
+        return angleInDegree-27;
+    }
+    public double calculateHoldPower(){
+        double kg = 0.0001;
+        double ke = -0.0001/41;
+        return -((kg + (ke * (slideExt.getCurrentPosition()-extMin))) * Math.cos(Math.toRadians(angleCalculate())));
+    }
+    public double squidController(int targetPos){
+        double ksq = 0.028;
+        slideRot.setTargetPosition(targetPos);
+        slideRot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        return ((Math.copySign(Math.sqrt(Math.abs(targetPos-slideRot.getCurrentPosition())),
+                targetPos-slideRot.getCurrentPosition())) * ksq)+calculateHoldPower();
+    }
 
     //lift arm up to hang
 //    public class RotateUp implements Action {
@@ -654,14 +751,14 @@ public class ViperSlide {
         public static int ext_hang = 1500;
         public static int ret_hang = 600;
         public static int ext_home = 400;
-        public static int ext_grab = 1500;
+        public static int ext_grab = 600;
         public static int rot_hang = 2700;
         public static int rot_lock = 2500;
-        public static int rot_hor = 1000;
+        public static int rot_hor = 1010;
         public static int rot_home = 400;
         public static int tele_rot_sub = 200;
         public static int tele_rot_hor = 1300;
-        public static int tele_rot_hang = 3350;
+        public static int tele_rot_hang = 3400;
         public static int tele_ext_hang = 1400;
         public static int rot_drag = 480;
         public static int ext_drag = 3779;
@@ -679,8 +776,8 @@ public class ViperSlide {
 
     @Config
     public static class PPB_Arm{
-        public static int rotScore = 3570;
-        public static int rotRetract = 3700;
+        public static int rotScore = 3580;
+        public static int rotRetract = 3800;
         public static int extScore = 3930;
         public static int extPick = 1700;
         public static int rotPickPre = 1000;
@@ -695,7 +792,7 @@ public class ViperSlide {
         public static int extHangPost = 480;
         public static int rotHangPost = 2600;
         public static int rotHorPre = 1000;
-        public static int extHor = 650;
+        public static int extHor = 690;
         public static int rotHorPost = 1200;
     }
 

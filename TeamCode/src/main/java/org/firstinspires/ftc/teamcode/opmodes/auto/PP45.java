@@ -9,7 +9,7 @@ public class PP45 {
     public static class delays{
         public static double start_raise = 0.6;
         public static double score_pre = 0;
-        public static double score_post = 0.1;
+        public static double score_post = 0.2;
         public static double grab_pre = 0;
         public static double grab_post = 0.6;
     }
@@ -43,7 +43,7 @@ public class PP45 {
     }
     @Config
     public static class score1_adj{
-        public static double x = 35;
+        public static double x = 34;
         public static double y = 63;
         public static double h = 0;
     }
@@ -173,8 +173,9 @@ public class PP45 {
         public static double h = 180;
     }
 
+   @Config
     public static class score2_adj{
-        public static double x = 35;
+        public static double x = 34;
         public static double y = 68;
         public static double h = 0;
     }
@@ -186,7 +187,7 @@ public class PP45 {
     @Config
     public static class score2_a{
         public static double x = 28;
-        public static double y = 68;
+        public static double y = 66;
         public static double h = 0;
     }
     @Config
@@ -233,7 +234,7 @@ public class PP45 {
     public static class pickup4{
         public static double x = 13;
         public static double y = 30;
-        public static double h = 180;
+        public static double h = 0;
     }
     @Config
     public static class pickup4_c1{

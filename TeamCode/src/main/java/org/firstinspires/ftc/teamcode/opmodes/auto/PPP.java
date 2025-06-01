@@ -109,7 +109,7 @@ public class PPP {
     }
     //@Config
     public static class pickup3_adj{
-        public static double x = 13.5;
+        public static double x = 13;
         public static double y = 27.5;
         public static double h = 180;
     }

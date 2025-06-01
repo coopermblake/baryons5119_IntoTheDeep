@@ -41,6 +41,7 @@ public class driveMode extends LinearOpMode {
             telemetry.addData("rot hor", Arm.rot_hor);
             telemetry.addData("rot hang", Arm.tele_rot_hang);
             telemetry.addData("rot max", robot.viperSlide.rotMax);
+            telemetry.addData("calcAngle", robot.viperSlide.angleCalculate());
 
             telemetry.addLine("EXTENSION");
             telemetry.addData("ext macro", robot.viperSlide.extendMacro);
